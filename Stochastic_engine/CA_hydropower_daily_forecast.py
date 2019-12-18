@@ -639,16 +639,6 @@ def hydro(sim_years):
             else:
                 M_SCE = np.dstack((M_SCE,A_SCE))
     
-    
-    #df_PGE = pd.DataFrame(M_PGE)
-    #df_PGE.columns = PGE_name_list
-    #df_PGE.to_excel('PGE_output_forecast.xlsx')
-    #
-    #df_SCE = pd.DataFrame(M_SCE)
-    #df_SCE.columns = SCE_name_list
-    #df_SCE.to_excel('SCE_output_forecast.xlsx')
-    
-    
     PGE_total=np.sum(M_PGE,axis=2)
     SCE_total=np.sum(M_SCE,axis=2)
     
@@ -656,126 +646,119 @@ def hydro(sim_years):
     for i in range(0,len(PGE_total)):
         for fd in range(0,f_horizon):
             PGE_total[i,fd] = np.min((PGE_total[i,fd],851000/7))
-            SCE_total[i,fd] = np.min((SCE_total[i,fd],153000/7))
+            SCE_total[i,fd] = np.min((SCE_total[i,fd],153000/7))  
+
+    # Cut first year and last two years
+    PGE_total = PGE_total[365:-730]
+    SCE_total = SCE_total[365:-730]
+ 
+    df_PGE = pd.DataFrame(PGE_total)
+    df_PGE.columns = ['fd1','fd2','fd3','fd4','fd5','fd6','fd7']
+
+    df_SCE = pd.DataFrame(SCE_total)
+    df_SCE.columns = ['fd1','fd2','fd3','fd4','fd5','fd6','fd7']
     
-    #Forecast analysis
-    TG = PGE_total
-    differences=np.zeros((len(PGE_total)-f_horizon+1,f_horizon))
-    for i in range(0,len(PGE_total)-f_horizon+1):
-        differences[i,:] = (TG[i,:] - TG[i:i+f_horizon,0])/1000  
+    df_PGE.to_csv('CA_hydropower/PGE_valley_hydro.csv')
+    df_SCE.to_csv('CA_hydropower/SCE_hydro.csv')
     
-    month_ID = np.zeros(((sim_years-1)*365,1))
-    for i in range(0,sim_years-1):
-        month_ID[i*365+0:i*365+31] = 1
-        month_ID[i*365+31:i*365+59]=2
-        month_ID[i*365+59:i*365+90]=3
-        month_ID[i*365+90:i*365+120]=4
-        month_ID[i*365+120:i*365+151]=5
-        month_ID[i*365+151:i*365+181]=6
-        month_ID[i*365+181:i*365+212]=7
-        month_ID[i*365+212:i*365+243]=8
-        month_ID[i*365+243:i*365+273]=9
-        month_ID[i*365+273:i*365+304]=10
-        month_ID[i*365+304:i*365+334]=11
-        month_ID[i*365+334:i*365+365]=12
-        
-    month_ID = month_ID[:-6]
-        
-    combined = np.column_stack((differences,month_ID))
-    df_combined = pd.DataFrame(combined)
-    df_combined.columns = ['1','2','3','4','5','6','7','Month']
+#    #Forecast analysis
+#    TG = PGE_total
+#    differences=np.zeros((len(PGE_total)-f_horizon+1,f_horizon))
+#    for i in range(0,len(PGE_total)-f_horizon+1):
+#        differences[i,:] = (TG[i,:] - TG[i:i+f_horizon,0])/1000  
+#    
+#    month_ID = np.zeros(((sim_years-1)*365,1))
+#    for i in range(0,sim_years-1):
+#        month_ID[i*365+0:i*365+31] = 1
+#        month_ID[i*365+31:i*365+59]=2
+#        month_ID[i*365+59:i*365+90]=3
+#        month_ID[i*365+90:i*365+120]=4
+#        month_ID[i*365+120:i*365+151]=5
+#        month_ID[i*365+151:i*365+181]=6
+#        month_ID[i*365+181:i*365+212]=7
+#        month_ID[i*365+212:i*365+243]=8
+#        month_ID[i*365+243:i*365+273]=9
+#        month_ID[i*365+273:i*365+304]=10
+#        month_ID[i*365+304:i*365+334]=11
+#        month_ID[i*365+334:i*365+365]=12
+#        
+#    month_ID = month_ID[:-6]
+#        
+#    combined = np.column_stack((differences,month_ID))
+#    df_combined = pd.DataFrame(combined)
+#    df_combined.columns = ['1','2','3','4','5','6','7','Month']
+#    
+#    plt.figure()
+#    
+#    months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+#    for i in range(0,12):
+#        plt.subplot(4,3,i+1)
+#        
+#        month_selection = df_combined.loc[df_combined['Month']==i+1,:]
+#        
+#        for j in range(0,len(month_selection)):
+#           
+#            plt.plot(month_selection.iloc[j,0:f_horizon])
+#            
+#        if i ==6:
+#            plt.ylabel('Difference (GWh)',fontweight='bold') 
+#        if i == 10:
+#            plt.xlabel('Forecast Horizon (Days)',fontweight='bold')
+#        plt.title(months[i],fontweight='bold')
+#        plt.ylim([-120,120])
+#    plt.subplots_adjust(wspace=0.6,hspace=1.2)
+#    
+#    plt.savefig('PGE_perfect_foresight.png', dpi=2000)
+#    
+#    
+#    #Forecast analysis
+#    TG = SCE_total
+#    differences=np.zeros((len(SCE_total)-f_horizon+1,f_horizon))
+#    for i in range(0,len(SCE_total)-f_horizon+1):
+#        differences[i,:] = (TG[i,:] - TG[i:i+f_horizon,0])/1000  
+#    
+#    month_ID = np.zeros(((sim_years-1)*365,1))
+#    for i in range(0,sim_years-1):
+#        month_ID[i*365+0:i*365+31] = 1
+#        month_ID[i*365+31:i*365+59]=2
+#        month_ID[i*365+59:i*365+90]=3
+#        month_ID[i*365+90:i*365+120]=4
+#        month_ID[i*365+120:i*365+151]=5
+#        month_ID[i*365+151:i*365+181]=6
+#        month_ID[i*365+181:i*365+212]=7
+#        month_ID[i*365+212:i*365+243]=8
+#        month_ID[i*365+243:i*365+273]=9
+#        month_ID[i*365+273:i*365+304]=10
+#        month_ID[i*365+304:i*365+334]=11
+#        month_ID[i*365+334:i*365+365]=12
+#        
+#    month_ID = month_ID[:-6]
+#        
+#    combined = np.column_stack((differences,month_ID))
+#    df_combined = pd.DataFrame(combined)
+#    df_combined.columns = ['1','2','3','4','5','6','7','Month']
+#    
+#    plt.figure()
+#    
+#    months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+#    for i in range(0,12):
+#        plt.subplot(4,3,i+1)
+#        
+#        month_selection = df_combined.loc[df_combined['Month']==i+1,:]
+#        
+#        for j in range(0,len(month_selection)):
+#           
+#            plt.plot(month_selection.iloc[j,0:f_horizon])
+#            
+#        if i ==6:
+#            plt.ylabel('Difference (GWh)',fontweight='bold') 
+#        if i == 10:
+#            plt.xlabel('Forecast Horizon (Days)',fontweight='bold')
+#        plt.title(months[i],fontweight='bold')
+#        plt.ylim([-25,25])
+#    plt.subplots_adjust(wspace=0.6,hspace=1.2)
+#    
+#    plt.savefig('SCE_perfect_foresight.png', dpi=2000)
     
-    plt.figure()
-    
-    months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-    for i in range(0,12):
-        plt.subplot(4,3,i+1)
-        
-        month_selection = df_combined.loc[df_combined['Month']==i+1,:]
-        
-        for j in range(0,len(month_selection)):
-           
-            plt.plot(month_selection.iloc[j,0:f_horizon])
-            
-        if i ==6:
-            plt.ylabel('Difference (GWh)',fontweight='bold') 
-        if i == 10:
-            plt.xlabel('Forecast Horizon (Days)',fontweight='bold')
-        plt.title(months[i],fontweight='bold')
-        plt.ylim([-120,120])
-    plt.subplots_adjust(wspace=0.6,hspace=1.2)
-    
-    plt.savefig('PGE_perfect_foresight.png', dpi=2000)
-    
-    
-    #Forecast analysis
-    TG = SCE_total
-    differences=np.zeros((len(SCE_total)-f_horizon+1,f_horizon))
-    for i in range(0,len(SCE_total)-f_horizon+1):
-        differences[i,:] = (TG[i,:] - TG[i:i+f_horizon,0])/1000  
-    
-    month_ID = np.zeros(((sim_years-1)*365,1))
-    for i in range(0,sim_years-1):
-        month_ID[i*365+0:i*365+31] = 1
-        month_ID[i*365+31:i*365+59]=2
-        month_ID[i*365+59:i*365+90]=3
-        month_ID[i*365+90:i*365+120]=4
-        month_ID[i*365+120:i*365+151]=5
-        month_ID[i*365+151:i*365+181]=6
-        month_ID[i*365+181:i*365+212]=7
-        month_ID[i*365+212:i*365+243]=8
-        month_ID[i*365+243:i*365+273]=9
-        month_ID[i*365+273:i*365+304]=10
-        month_ID[i*365+304:i*365+334]=11
-        month_ID[i*365+334:i*365+365]=12
-        
-    month_ID = month_ID[:-6]
-        
-    combined = np.column_stack((differences,month_ID))
-    df_combined = pd.DataFrame(combined)
-    df_combined.columns = ['1','2','3','4','5','6','7','Month']
-    
-    plt.figure()
-    
-    months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-    for i in range(0,12):
-        plt.subplot(4,3,i+1)
-        
-        month_selection = df_combined.loc[df_combined['Month']==i+1,:]
-        
-        for j in range(0,len(month_selection)):
-           
-            plt.plot(month_selection.iloc[j,0:f_horizon])
-            
-        if i ==6:
-            plt.ylabel('Difference (GWh)',fontweight='bold') 
-        if i == 10:
-            plt.xlabel('Forecast Horizon (Days)',fontweight='bold')
-        plt.title(months[i],fontweight='bold')
-        plt.ylim([-25,25])
-    plt.subplots_adjust(wspace=0.6,hspace=1.2)
-    
-    plt.savefig('SCE_perfect_foresight.png', dpi=2000)
-    
-    
-    #combined = np.column_stack((PGE_total,SCE_total))
-    #Totals = pd.DataFrame(combined)
-    #zones = ['PGE','SCE']
-    #Totals.columns = zones
-    #
-    ## Convert to daily, cut 1st and last 2 years
-    #sim_years2 = sim_years - 3
-    #daily = np.zeros((sim_years2*365,2))
-    #for i in range(0,sim_years2):
-    #    for z in zones:
-    #        z_index = zones.index(z)
-    #        s = Totals.loc[(i+1)*365:(i+1)*365+365,z].values
-    #        for w in range(0,365):
-    #            daily[i*365+w,z_index] = s[w]
-    #            
-    #df_D = pd.DataFrame(daily)
-    #df_D.columns = ['PGE_valley','SCE']
-    #df_D.to_excel('CA_hydropower/CA_hydro_daily_forecast.xlsx')
-    #
     return None 
 

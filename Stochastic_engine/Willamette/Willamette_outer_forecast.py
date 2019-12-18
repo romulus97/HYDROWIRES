@@ -12,10 +12,6 @@ Created on Tue May  8 09:09:37 2018
 
 #initialize reservoirs
 #running the inner function for each reservoir along with the timing of the routing
-import sys
-#import time
-initial_doy=1 #Set the simulation initial_doy
-sys.argv = ["settings.xml", str(initial_doy)] #simulation inputs
 
 import pandas as pd
 import numpy as np
@@ -25,6 +21,12 @@ import os
 import sys
 from sklearn import linear_model
 
+#def simulate(sim_years):
+
+#import time
+initial_doy=1 #Set the simulation initial_doy
+sys.argv = ["settings.xml", str(initial_doy)] #simulation inputs
+    
 #%%  load reservoirs and control point infos
 #with open('settings.xml') as fd:
 with open(str(sys.argv[0])) as fd:
@@ -36,7 +38,6 @@ reservoirs = settings["settings"]["reservoirs"]['reservoir']
 output_filenames=settings["settings"]['data_outputs']['filenames']
 path=settings["settings"]['data_inputs']['path']
 path=path['@path']
-
 
 
 #Create Reservoir class
@@ -990,6 +991,8 @@ for i in range(0,12):
 plt.subplots_adjust(wspace=0.6,hspace=1.2)
 
 plt.savefig('Willamette_hydro_perfect_foresight.png', dpi=2000)
+
+#return None
     
 #    writer = pd.ExcelWriter(os.path.join(str(path),output_filenames['@hydropower_filename']))
 #    Output_HP.to_excel(writer,'Willamette_HP')
@@ -1003,18 +1006,18 @@ plt.savefig('Willamette_hydro_perfect_foresight.png', dpi=2000)
 #    writer.save()
 #    
     #summary
-    Output_release=pd.DataFrame(outflows_all[:,:,fd],columns=res_list)
-    Output_volume=pd.DataFrame(volumes_all[:,:,fd],columns=res_list)
-    Output_elev=pd.DataFrame(elevations_all[:,:,fd],columns=res_list)
-    
-    filename = 'releases_%d.csv' % fd
-    Output_release.to_csv(filename)
-    
-    filename = 'volumes_%d.csv' % fd
-    Output_volume.to_csv(filename)
-    
-    filename = 'elevations_%d.csv' % fd
-    Output_elev.to_csv(filename)
+#    Output_release=pd.DataFrame(outflows_all[:,:,fd],columns=res_list)
+#    Output_volume=pd.DataFrame(volumes_all[:,:,fd],columns=res_list)
+#    Output_elev=pd.DataFrame(elevations_all[:,:,fd],columns=res_list)
+#    
+#    filename = 'releases_%d.csv' % fd
+#    Output_release.to_csv(filename)
+#    
+#    filename = 'volumes_%d.csv' % fd
+#    Output_volume.to_csv(filename)
+#    
+#    filename = 'elevations_%d.csv' % fd
+#    Output_elev.to_csv(filename)
     
 #    writer = pd.ExcelWriter(os.path.join(str(path),output_filenames['@summary_filename']))
 #    Output_release.to_excel(writer,'release_cms')

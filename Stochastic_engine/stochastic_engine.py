@@ -41,7 +41,7 @@ print('streamflows')
 # DAILY HYDROPOWER SIMULATION
 
 # Now specify a smaller subset of stochastic data to run (must be <= stoch years)
-sim_years = 15
+sim_years = 3
 
 # Run ORCA to get California storage dam releases
 import main
@@ -53,10 +53,10 @@ import CA_hydropower_daily_forecast
 CA_hydropower_daily_forecast.hydro(sim_years)
 print('CA hydropower')
 
-##Willamette operational model
-#import Willamette_launch
-#Willamette_launch.launch(sim_years)
-#print('Willamette')
+#Willamette operational model
+import Willamette_launch_forecast
+Willamette_launch_forecast.launch(sim_years)
+print('Willamette')
 #
 #
 ## Federal Columbia River Power System Model (mass balance in Python)
