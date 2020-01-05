@@ -57,9 +57,10 @@ model.Reserves = model.Hydro | model.Coal | model.Gas | model.Oil
 model.Generators = model.Zone1Generators | model.Zone2Generators | model.Zone3Generators | model.Zone4Generators | model.WECCImportsPGEV | model.WECCImportsSCE | model.WECCImportsSDGE
 
 #
-model.zones =Set()
+model.zones = Set()
 model.sources = Set(within=model.zones)
 model.sinks = Set(within=model.zones)
+model.forecast_days = Set()
 
 #########################################################
 # These are the generators parameters from model input  #
@@ -114,6 +115,7 @@ model.SimHours = Param(within=PositiveIntegers)
 model.SH_periods = RangeSet(1,model.SimHours)
 model.SimDays = Param(within=PositiveIntegers)
 model.SD_periods = RangeSet(1,model.SimDays)
+model.SHF_periods = RangeSet(1,model.SimHours + 144)
 
 # Operating horizon information
 model.HorizonHours = Param(within=PositiveIntegers)
@@ -123,8 +125,7 @@ model.HorizonDays = Param(within=PositiveIntegers)
 model.hd_periods = RangeSet(1,model.HorizonDays)
 model.h1_periods = RangeSet(1,24)
 model.h2_periods = RangeSet(25,48)
-model.ramp1_periods = RangeSet(2,24)
-model.ramp2_periods = RangeSet(26,48)
+model.ramp_periods = RangeSet(2, model.HorizonHours)
 
 #Demand over simulation period
 model.SimDemand = Param(model.zones*model.SH_periods, within=NonNegativeReals)
@@ -143,10 +144,10 @@ model.SimReserves = Param(model.SH_periods, within=NonNegativeReals)
 model.HorizonReserves = Param(model.hh_periods, within=NonNegativeReals,mutable=True)
 
 #Exchange - dispatchable
-model.SimPath42_exports = Param(model.SH_periods, within=NonNegativeReals)
-model.SimPath24_exports = Param(model.SH_periods, within=NonNegativeReals)
-model.SimPath45_exports = Param(model.SH_periods, within=NonNegativeReals)
-model.SimPath66_exports = Param(model.SH_periods, within=NonNegativeReals)
+model.SimPath42_exports = Param(model.forecast_days, model.SHF_periods, within=NonNegativeReals)
+model.SimPath24_exports = Param(model.forecast_days, model.SHF_periods, within=NonNegativeReals)
+model.SimPath45_exports = Param(model.forecast_days, model.SHF_periods, within=NonNegativeReals)
+model.SimPath66_exports = Param(model.forecast_days, model.SHF_periods, within=NonNegativeReals)
 
 model.HorizonPath42_exports = Param(model.hh_periods, within=NonNegativeReals,mutable=True)
 model.HorizonPath24_exports = Param(model.hh_periods, within=NonNegativeReals,mutable=True)
@@ -163,23 +164,23 @@ model.SimGasPrice = Param(model.zones,model.SD_periods, within=NonNegativeReals)
 model.GasPrice = Param(model.zones,within = NonNegativeReals, mutable=True,initialize=0)
 
 #Daily path and hydro parameters
-model.SimPath66_imports = Param(model.SD_periods, within=NonNegativeReals)
-model.SimPath46_SCE_imports = Param(model.SD_periods, within=NonNegativeReals)
-model.SimPath61_imports = Param(model.SD_periods, within=NonNegativeReals)
-model.SimPath42_imports = Param(model.SD_periods, within=NonNegativeReals)
-model.SimPath24_imports = Param(model.SD_periods, within=NonNegativeReals)
-model.SimPath45_imports = Param(model.SD_periods, within=NonNegativeReals)
-model.SimPGE_valley_hydro = Param(model.SD_periods, within=NonNegativeReals)
-model.SimSCE_hydro = Param(model.SD_periods, within=NonNegativeReals)
+model.SimPath66_imports = Param(model.forecast_days, model.SD_periods, within=NonNegativeReals)
+model.SimPath46_SCE_imports = Param(model.forecast_days, model.SD_periods, within=NonNegativeReals)
+model.SimPath61_imports = Param(model.forecast_days, model.SD_periods, within=NonNegativeReals)
+model.SimPath42_imports = Param(model.forecast_days, model.SD_periods, within=NonNegativeReals)
+model.SimPath24_imports = Param(model.forecast_days, model.SD_periods, within=NonNegativeReals)
+model.SimPath45_imports = Param(model.forecast_days, model.SD_periods, within=NonNegativeReals)
+model.SimPGE_valley_hydro = Param(model.forecast_days, model.SD_periods, within=NonNegativeReals)
+model.SimSCE_hydro = Param(model.forecast_days, model.SD_periods, within=NonNegativeReals)
 
-model.HorizonPath66_imports = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonPath46_SCE_imports = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonPath61_imports = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonPath42_imports = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonPath24_imports = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonPath45_imports = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonSCE_hydro = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonPGE_valley_hydro = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
+model.HorizonPath66_imports = Param(within=NonNegativeReals,mutable=True)
+model.HorizonPath46_SCE_imports = Param(within=NonNegativeReals,mutable=True)
+model.HorizonPath61_imports = Param(within=NonNegativeReals,mutable=True)
+model.HorizonPath42_imports = Param(within=NonNegativeReals,mutable=True)
+model.HorizonPath24_imports = Param(within=NonNegativeReals,mutable=True)
+model.HorizonPath45_imports = Param(within=NonNegativeReals,mutable=True)
+model.HorizonSCE_hydro = Param(within=NonNegativeReals,mutable=True)
+model.HorizonPGE_valley_hydro = Param(within=NonNegativeReals,mutable=True)
 
 #Variable resources over horizon
 model.HorizonWind = Param(model.zones,model.hh_periods,within=NonNegativeReals,mutable=True)
@@ -187,20 +188,20 @@ model.HorizonSolar = Param(model.zones,model.hh_periods,within=NonNegativeReals,
 model.HorizonHydro = Param(model.zones,model.hh_periods,within=NonNegativeReals,mutable=True)
 
 #Minimum flows (hydro and paths)
-model.SimSCE_hydro_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimPath46_SCE_imports_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimPath66_imports_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimPath42_imports_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimPath61_imports_minflow = Param(model.SH_periods, within=NonNegativeReals)
-model.SimPGE_valley_hydro_minflow = Param(model.SH_periods, within=NonNegativeReals)
+model.SimSCE_hydro_minflow = Param(model.forecast_days, model.SHF_periods, within=NonNegativeReals)
+model.SimPath46_SCE_imports_minflow = Param(model.forecast_days, model.SHF_periods, within=NonNegativeReals)
+model.SimPath66_imports_minflow = Param(model.forecast_days, model.SHF_periods, within=NonNegativeReals)
+model.SimPath42_imports_minflow = Param(model.forecast_days, model.SHF_periods, within=NonNegativeReals)
+model.SimPath61_imports_minflow = Param(model.forecast_days, model.SHF_periods, within=NonNegativeReals)
+model.SimPGE_valley_hydro_minflow = Param(model.forecast_days, model.SHF_periods, within=NonNegativeReals)
 
 
 model.HorizonPath46_SCE_minflow  = Param(model.hh_periods,within=NonNegativeReals,mutable=True)
 model.HorizonPath66_minflow  = Param(model.hh_periods,within=NonNegativeReals,mutable=True)
 model.HorizonPath61_minflow  = Param(model.hh_periods,within=NonNegativeReals,mutable=True)
 model.HorizonPath42_minflow  = Param(model.hh_periods,within=NonNegativeReals,mutable=True)
-model.HorizonPGE_valley_hydro_minflow = Param(model.hh_periods,within=NonNegativeReals,mutable=True)
-model.HorizonSCE_hydro_minflow = Param(model.hh_periods,within=NonNegativeReals,mutable=True)
+model.HorizonPGE_valley_hydro_minflow = Param(within=NonNegativeReals,mutable=True)
+model.HorizonSCE_hydro_minflow = Param(within=NonNegativeReals,mutable=True)
 
 
 ##Initial conditions
@@ -382,34 +383,20 @@ def Zone4_Balance(model,i):
 model.Bal4Constraint= Constraint(model.hh_periods,rule=Zone4_Balance)
 
 # Daily production limits on dispatchable hydropower
+
 def HydroC1(model,i):
-    m1 = sum(model.mwh_1['PGEV_hydro',i] for i in model.h1_periods)
-    m2 = sum(model.mwh_2['PGEV_hydro',i] for i in model.h1_periods)
-    m3 = sum(model.mwh_3['PGEV_hydro',i] for i in model.h1_periods)
-    return m1 + m2 + m3 <= model.HorizonPGE_valley_hydro[1]
-model.HydroConstraint1= Constraint(model.h1_periods,rule=HydroC1)
+    m1 = sum(model.mwh_1['PGEV_hydro',i] for i in model.hh_periods)
+    m2 = sum(model.mwh_2['PGEV_hydro',i] for i in model.hh_periods)
+    m3 = sum(model.mwh_3['PGEV_hydro',i] for i in model.hh_periods)
+    return m1 + m2 + m3 <= model.HorizonPGE_valley_hydro
+model.HydroConstraint1= Constraint(model.hh_periods,rule=HydroC1)
 
 def HydroC2(model,i):
-    m1 = sum(model.mwh_1['PGEV_hydro',i] for i in model.h2_periods)
-    m2 = sum(model.mwh_2['PGEV_hydro',i] for i in model.h2_periods)
-    m3 = sum(model.mwh_3['PGEV_hydro',i] for i in model.h2_periods)
-    return m1 + m2 + m3 <= model.HorizonPGE_valley_hydro[2]
-model.HydroConstraint2= Constraint(model.h2_periods,rule=HydroC2)
-
-def HydroC3(model,i):
-    m1 = sum(model.mwh_1['SCE_hydro',i] for i in model.h1_periods)
-    m2 = sum(model.mwh_2['SCE_hydro',i] for i in model.h1_periods)
-    m3 = sum(model.mwh_3['SCE_hydro',i] for i in model.h1_periods)
-    return m1 + m2 + m3 <= model.HorizonSCE_hydro[1]
-model.HydroConstraint3= Constraint(model.h1_periods,rule=HydroC3)
-
-def HydroC4(model,i):
-    m1 = sum(model.mwh_1['SCE_hydro',i] for i in model.h2_periods)
-    m2 = sum(model.mwh_2['SCE_hydro',i] for i in model.h2_periods)
-    m3 = sum(model.mwh_3['SCE_hydro',i] for i in model.h2_periods)
-    return m1 + m2 + m3 <= model.HorizonSCE_hydro[2]
-model.HydroConstraint4= Constraint(model.h2_periods,rule=HydroC4)
-
+    m1 = sum(model.mwh_1['SCE_hydro',i] for i in model.hh_periods)
+    m2 = sum(model.mwh_2['SCE_hydro',i] for i in model.hh_periods)
+    m3 = sum(model.mwh_3['SCE_hydro',i] for i in model.hh_periods)
+    return m1 + m2 + m3 <= model.HorizonSCE_hydro
+model.HydroConstraint2= Constraint(model.hh_periods,rule=HydroC2)
 
 #Max capacity constraints on variable resources
 def SolarC(model,z,i):
@@ -447,94 +434,51 @@ model.SCEHMinflowConstraint= Constraint(model.hh_periods,rule=SCEHminC)
 
 # Daily production limits on imported power
 def ImportsC1(model,i):
-    m1 = sum(model.mwh_1['P66I',i] for i in model.h1_periods)
-    m2 = sum(model.mwh_2['P66I',i] for i in model.h1_periods)
-    m3 = sum(model.mwh_3['P66I',i] for i in model.h1_periods)
-    return m1 + m2 + m3 <= model.HorizonPath66_imports[1]
-model.ImportsConstraint1= Constraint(model.h1_periods,rule=ImportsC1)
-
-def ImportsC2(model,i):
-    m1 = sum(model.mwh_1['P66I',i] for i in model.h2_periods)
-    m2 = sum(model.mwh_2['P66I',i] for i in model.h2_periods)
-    m3 = sum(model.mwh_3['P66I',i] for i in model.h2_periods)
-    return m1 + m2 + m3 <= model.HorizonPath66_imports[2]
-model.ImportsConstraint2= Constraint(model.h2_periods,rule=ImportsC2)
+    m1 = sum(model.mwh_1['P66I',i] for i in model.hh_periods)
+    m2 = sum(model.mwh_2['P66I',i] for i in model.hh_periods)
+    m3 = sum(model.mwh_3['P66I',i] for i in model.hh_periods)
+    return m1 + m2 + m3 <= model.HorizonPath66_imports
+model.ImportsConstraint1= Constraint(model.hh_periods,rule=ImportsC1)
 
 def ImportsC3(model,i):
-    m1 = sum(model.mwh_1['P46I_SCE',i] for i in model.h1_periods)
-    m2 = sum(model.mwh_2['P46I_SCE',i] for i in model.h1_periods)
-    m3 = sum(model.mwh_3['P46I_SCE',i] for i in model.h1_periods)
-    return m1 + m2 + m3 <= model.HorizonPath46_SCE_imports[1]
-model.ImportsConstraint3= Constraint(model.h1_periods,rule=ImportsC3)
-
-def ImportsC4(model,i):
-    m1 = sum(model.mwh_1['P46I_SCE',i] for i in model.h2_periods)
-    m2 = sum(model.mwh_2['P46I_SCE',i] for i in model.h2_periods)
-    m3 = sum(model.mwh_3['P46I_SCE',i] for i in model.h2_periods)
-    return m1 + m2 + m3 <= model.HorizonPath46_SCE_imports[2]
-model.ImportsConstraint4= Constraint(model.h2_periods,rule=ImportsC4)
+    m1 = sum(model.mwh_1['P46I_SCE',i] for i in model.hh_periods)
+    m2 = sum(model.mwh_2['P46I_SCE',i] for i in model.hh_periods)
+    m3 = sum(model.mwh_3['P46I_SCE',i] for i in model.hh_periods)
+    return m1 + m2 + m3 <= model.HorizonPath46_SCE_imports
+model.ImportsConstraint3= Constraint(model.hh_periods,rule=ImportsC3)
 
 def ImportsC5(model,i):
-    m1 = sum(model.mwh_1['P61I',i] for i in model.h1_periods)
-    m2 = sum(model.mwh_2['P61I',i] for i in model.h1_periods)
-    m3 = sum(model.mwh_3['P61I',i] for i in model.h1_periods)
-    return m1 + m2 + m3 <= model.HorizonPath61_imports[1]
-model.ImportsConstraint5= Constraint(model.h1_periods,rule=ImportsC5)
-
-def ImportsC6(model,i):
-    m1 = sum(model.mwh_1['P61I',i] for i in model.h2_periods)
-    m2 = sum(model.mwh_2['P61I',i] for i in model.h2_periods)
-    m3 = sum(model.mwh_3['P61I',i] for i in model.h2_periods)
-    return m1 + m2 + m3 <= model.HorizonPath61_imports[2]
-model.ImportsConstraint6= Constraint(model.h2_periods,rule=ImportsC6)
+    m1 = sum(model.mwh_1['P61I',i] for i in model.hh_periods)
+    m2 = sum(model.mwh_2['P61I',i] for i in model.hh_periods)
+    m3 = sum(model.mwh_3['P61I',i] for i in model.hh_periods)
+    return m1 + m2 + m3 <= model.HorizonPath61_imports
+model.ImportsConstraint5= Constraint(model.hh_periods,rule=ImportsC5)
 
 def ImportsC7(model,i):
-    m1 = sum(model.mwh_1['P42I',i] for i in model.h1_periods)
-    m2 = sum(model.mwh_2['P42I',i] for i in model.h1_periods)
-    m3 = sum(model.mwh_3['P42I',i] for i in model.h1_periods)
-    return m1 + m2 + m3 <= model.HorizonPath42_imports[1]
-model.ImportsConstraint7= Constraint(model.h1_periods,rule=ImportsC7)
-
-def ImportsC8(model,i):
-    m1 = sum(model.mwh_1['P42I',i] for i in model.h2_periods)
-    m2 = sum(model.mwh_2['P42I',i] for i in model.h2_periods)
-    m3 = sum(model.mwh_3['P42I',i] for i in model.h2_periods)
-    return m1 + m2 + m3 <= model.HorizonPath42_imports[2]
-model.ImportsConstraint8= Constraint(model.h2_periods,rule=ImportsC8)
+    m1 = sum(model.mwh_1['P42I',i] for i in model.hh_periods)
+    m2 = sum(model.mwh_2['P42I',i] for i in model.hh_periods)
+    m3 = sum(model.mwh_3['P42I',i] for i in model.hh_periods)
+    return m1 + m2 + m3 <= model.HorizonPath42_imports
+model.ImportsConstraint7= Constraint(model.hh_periods,rule=ImportsC7)
 
 def ImportsC9(model,i):
-    m1 = sum(model.mwh_1['P24I',i] for i in model.h1_periods)
-    m2 = sum(model.mwh_2['P24I',i] for i in model.h1_periods)
-    m3 = sum(model.mwh_3['P24I',i] for i in model.h1_periods)
-    return m1 + m2 + m3 <= model.HorizonPath24_imports[1]
-model.ImportsConstraint9= Constraint(model.h1_periods,rule=ImportsC9)
-
-def ImportsC10(model,i):
-    m1 = sum(model.mwh_1['P24I',i] for i in model.h2_periods)
-    m2 = sum(model.mwh_2['P24I',i] for i in model.h2_periods)
-    m3 = sum(model.mwh_3['P24I',i] for i in model.h2_periods)
-    return m1 + m2 + m3 <= model.HorizonPath24_imports[2]
-model.ImportsConstraint10= Constraint(model.h2_periods,rule=ImportsC10)
+    m1 = sum(model.mwh_1['P24I',i] for i in model.hh_periods)
+    m2 = sum(model.mwh_2['P24I',i] for i in model.hh_periods)
+    m3 = sum(model.mwh_3['P24I',i] for i in model.hh_periods)
+    return m1 + m2 + m3 <= model.HorizonPath24_imports
+model.ImportsConstraint9= Constraint(model.hh_periods,rule=ImportsC9)
 
 def ImportsC11(model,i):
-    m1 = sum(model.mwh_1['P45I',i] for i in model.h1_periods)
-    m2 = sum(model.mwh_2['P45I',i] for i in model.h1_periods)
-    m3 = sum(model.mwh_3['P45I',i] for i in model.h1_periods)
-    return m1 + m2 + m3 <= model.HorizonPath45_imports[1]
-model.ImportsConstraint11= Constraint(model.h1_periods,rule=ImportsC11)
-
-def ImportsC12(model,i):
-    m1 = sum(model.mwh_1['P45I',i] for i in model.h2_periods)
-    m2 = sum(model.mwh_2['P45I',i] for i in model.h2_periods)
-    m3 = sum(model.mwh_3['P45I',i] for i in model.h2_periods)
-    return m1 + m2 + m3 <= model.HorizonPath45_imports[2]
-model.ImportsConstraint12= Constraint(model.h2_periods,rule=ImportsC12)
+    m1 = sum(model.mwh_1['P45I',i] for i in model.hh_periods)
+    m2 = sum(model.mwh_2['P45I',i] for i in model.hh_periods)
+    m3 = sum(model.mwh_3['P45I',i] for i in model.hh_periods)
+    return m1 + m2 + m3 <= model.HorizonPath45_imports
+model.ImportsConstraint11= Constraint(model.hh_periods,rule=ImportsC11)
 
 ##max capacity constraints on flows, etc.
 def FlowC(model,s,k,i):
     return model.flow[s,k,i] <= model.limit[s,k]
 model.FlowConstraint= Constraint(model.sources,model.sinks,model.hh_periods,rule=FlowC)
-
 
 #Max Capacity Constraint
 def MaxC(model,j,i):
@@ -607,11 +551,7 @@ model.PumpTime = Constraint(model.PSH,model.hh_periods,rule=PSHC)
 def Ramp1(model,j,i):
     a = model.mwh_1[j,i] + model.mwh_2[j,i] + model.mwh_3[j,i]
     b = model.mwh_1[j,i-1] + model.mwh_2[j,i-1] + model.mwh_3[j,i-1]
-    return a - b <= model.ramp[j]
-model.RampCon1 = Constraint(model.Ramping,model.ramp1_periods,rule=Ramp1)
+    return abs(a - b) <= model.ramp[j]
+model.RampCon1 = Constraint(model.Ramping,model.ramp_periods,rule=Ramp1)
 
-def Ramp2(model,j,i):
-    a = model.mwh_1[j,i] + model.mwh_2[j,i] + model.mwh_3[j,i]
-    b = model.mwh_1[j,i-1] + model.mwh_2[j,i-1] + model.mwh_3[j,i-1]
-    return b - a <= model.ramp[j]
-model.RampCon2 = Constraint(model.Ramping,model.ramp2_periods,rule=Ramp2)
+

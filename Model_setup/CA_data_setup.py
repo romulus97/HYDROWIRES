@@ -8,7 +8,7 @@ Created on Wed May 03 15:01:31 2017
 import pandas as pd
 import numpy as np
 
-def setup(year,hist,hist_year):
+def setup(year,hist,hist_year,operating_horizon):
 #    year = 0
 #    hist = 0
 #    hist_year = 2010
@@ -38,9 +38,11 @@ def setup(year,hist,hist_year):
             reserves[i] = np.sum(rv[i,:])*.04
     df_reserves = pd.DataFrame(reserves)
     df_reserves.columns = ['reserves']
-
+    
     ##daily hydropower availability
-    df_hydro = pd.read_csv('Hydro_setup/CA_dispatchable_hydro.csv',header=0)
+    df_hydro_PGE = pd.read_csv('Hydro_setup/CA_dispatchable_PGE.csv',header=0)
+    df_hydro_SCE = pd.read_csv('Hydro_setup/CA_dispatchable_SCE.csv',header=0)
+    
 
     ##time series of wind generation for each zone
     df_wind = pd.read_csv('../Stochastic_engine/Synthetic_wind_power/wind_power_sim.csv',header=0)
@@ -57,10 +59,19 @@ def setup(year,hist,hist_year):
     solar_caps = pd.read_excel('CA_data_file/solar_caps.xlsx')
 
     ##daily time series of dispatchable imports by path
-    df_imports = pd.read_csv('Path_setup/CA_dispatchable_imports.csv',header=0)
+    forecast_days = ['fd1','fd2','fd3','fd4','fd5','fd6','fd7']
+    df_imports66 = pd.read_csv('Path_setup/CA_dispatchable_66.csv',header=0)
+    df_imports61 = pd.read_csv('Path_setup/CA_dispatchable_61.csv',header=0)
+    df_imports45 = pd.read_csv('Path_setup/CA_dispatchable_45.csv',header=0)
+    df_imports46 = pd.read_csv('Path_setup/CA_dispatchable_46.csv',header=0)
+    df_imports42 = pd.read_csv('Path_setup/CA_dispatchable_42.csv',header=0)
+    df_imports24 = pd.read_csv('Path_setup/CA_dispatchable_24.csv',header=0)
 
     ##hourly time series of exports by zone
-    df_exports = pd.read_csv('Path_setup/CA_exports.csv',header=0)
+    df_exports24 = pd.read_csv('Path_setup/CA_exports24.csv',header=0)
+    df_exports42 = pd.read_csv('Path_setup/CA_exports42.csv',header=0)
+    df_exports45 = pd.read_csv('Path_setup/CA_exports45.csv',header=0)
+    df_exports66 = pd.read_csv('Path_setup/CA_exports66.csv',header=0)
 
     #must run resources (LFG,ag_waste,nuclear)
     df_must = pd.read_excel('CA_data_file/must_run.xlsx',header=0)
@@ -72,10 +83,14 @@ def setup(year,hist,hist_year):
     df_ng = df_ng.reset_index()
 
     #california imports hourly minimum flows
-    df_CA_import_mins = pd.read_csv('Path_setup/CA_path_mins.csv', header=0)
+    df_CA_import_mins42 = pd.read_csv('Path_setup/CA_path_mins42.csv', header=0)
+    df_CA_import_mins46 = pd.read_csv('Path_setup/CA_path_mins46.csv', header=0)
+    df_CA_import_mins61 = pd.read_csv('Path_setup/CA_path_mins61.csv', header=0)
+    df_CA_import_mins66 = pd.read_csv('Path_setup/CA_path_mins66.csv', header=0)
 
     #california hydro hourly minimum flows
-    df_CA_hydro_mins = pd.read_csv('Hydro_setup/CA_hydro_mins.csv', header=0)
+    df_PGE_hydro_mins = pd.read_csv('Hydro_setup/PGE_mins.csv', header=0)
+    df_SCE_hydro_mins = pd.read_csv('Hydro_setup/SCE_mins.csv', header=0)
 
     #list plant types
     types = ['ngct', 'ngcc', 'ngst', 'coal','oil', 'psh', 'slack', 'imports','hydro']
@@ -298,6 +313,7 @@ def setup(year,hist,hist_year):
         for z in zones:
             f.write(z + ' ')
         f.write(';\n\n')
+        
 
     ################
     #  parameters  #
@@ -309,14 +325,18 @@ def setup(year,hist,hist_year):
         f.write('\n')
         f.write('param SimDays:= %d;' % int(SimHours/24))
         f.write('\n\n')
-        HorizonHours = 48
+        HorizonHours = int(operating_horizon*24)
         f.write('param HorizonHours := %d;' % HorizonHours)
         f.write('\n\n')
         HorizonDays = int(HorizonHours/24)
         f.write('param HorizonDays := %d;' % HorizonDays)
         f.write('\n\n')
 
-
+        # forecast days
+        f.write('set forecast_days :=\n')
+        for fd in range(1,operating_horizon+1):
+            f.write('fd%d ' % fd)
+        f.write(';\n\n')
 
         # create parameter matrix for transmission paths (source and sink connections)
         f.write('param:' + '\t' + 'limit' + '\t' +'hurdle :=' + '\n')
@@ -376,15 +396,36 @@ def setup(year,hist,hist_year):
 
         #system wide (daily)
         f.write('param:' + '\t' + 'SimPath66_imports' + '\t' + 'SimPath46_SCE_imports' + '\t' + 'SimPath61_imports' + '\t' + 'SimPath42_imports' + '\t' + 'SimPath24_imports' + '\t' + 'SimPath45_imports' + '\t' + 'SimPGE_valley_hydro' + '\t' + 'SimSCE_hydro:=' + '\n')
-        for d in range(0,len(df_imports)):
-                f.write(str(d+1) + '\t' + str(df_imports.loc[d,'Path66']) + '\t' + str(df_imports.loc[d,'Path46_SCE']) + '\t' + str(df_imports.loc[d,'Path61']) + '\t' + str(df_imports.loc[d,'Path42']) + '\t' + str(df_imports.loc[d,'Path24']) + '\t' + str(df_imports.loc[d,'Path45']) + '\t' + str(df_hydro.loc[d,'PGE_valley']) + '\t' + str(df_hydro.loc[d,'SCE']) + '\n')
+        for d in range(0,len(df_imports66)):
+            for fd in forecast_days:
+                f.write(fd + '\t' + str(d+1) + '\t' +  str(df_imports66.loc[d,fd]) + '\t' + str(df_imports46.loc[d,fd]) + '\t' + str(df_imports61.loc[d,fd]) + '\t' + str(df_imports42.loc[d,fd]) + '\t' + str(df_imports24.loc[d,fd]) + '\t' + str(df_imports45.loc[d,fd]) + '\t' + str(df_hydro_PGE.loc[d,fd]) + '\t' + str(df_hydro_SCE.loc[d,fd]) + '\n')
         f.write(';\n\n')
 
 
         #system wide (hourly)
-        f.write('param:' + '\t' + 'SimPath66_exports' + '\t' + 'SimPath42_exports' + '\t' + 'SimPath24_exports' + '\t' + 'SimPath45_exports' + '\t' + 'SimReserves' + '\t' + 'SimSCE_hydro_minflow' + '\t' + 'SimPGE_valley_hydro_minflow' + '\t' + 'SimPath61_imports_minflow' + '\t' + 'SimPath66_imports_minflow' + '\t' + 'SimPath46_SCE_imports_minflow' + '\t' + 'SimPath42_imports_minflow:=' + '\n')
-        for h in range(0,len(df_load)):
-                f.write(str(h+1) + '\t' + str(df_exports.loc[h,'Path66']) + '\t' + str(df_exports.loc[h,'Path42']) + '\t' + str(df_exports.loc[h,'Path24']) + '\t' + str(df_exports.loc[h,'Path45']) + '\t' + str(df_reserves.loc[h,'reserves'])  + '\t' + str(df_CA_hydro_mins.loc[h,'SCE']) + '\t' + str(df_CA_hydro_mins.loc[h,'PGE_valley']) + '\t' + str(df_CA_import_mins.loc[h,'Path61']) + '\t' + str(df_CA_import_mins.loc[h,'Path66']) + '\t' + str(df_CA_import_mins.loc[h,'Path46_SCE']) + '\t' + str(df_CA_import_mins.loc[h,'Path42']) + '\n')
+        f.write('param:' + '\t' + 'SimPath66_exports' + '\t' + 'SimPath42_exports' + '\t' + 'SimPath24_exports' + '\t' + 'SimPath45_exports' + '\t' + 'SimSCE_hydro_minflow' + '\t' + 'SimPGE_valley_hydro_minflow' + '\t' + 'SimPath61_imports_minflow' + '\t' + 'SimPath66_imports_minflow' + '\t' + 'SimPath46_SCE_imports_minflow' + '\t' + 'SimPath42_imports_minflow:=' + '\n')
+        
+        #first write information for obsolete days
+        for t in range(2,8):
+            j=t
+            while j < 8:
+                fd =forecast_days[j-1]
+                for h in range(1,25):
+                    f.write(fd + '\t' + str((t-2)*24+h) + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0'  + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\n')
+                j=j+1
+        
+        for d in range(0,len(df_imports66)):
+            for fd in forecast_days:
+                fd_index = forecast_days.index(fd) 
+                for h in range(0,24):                
+                    f.write(fd + '\t' + str(d*24+fd_index*24+h+1) + '\t' + str(df_exports66.loc[d*24+h,fd]) + '\t' + str(df_exports42.loc[d*24+h,fd]) + '\t' + str(df_exports24.loc[d*24+h,fd]) + '\t' + str(df_exports45.loc[d*24+h,fd])  + '\t' + str(df_SCE_hydro_mins.loc[d*24+h,fd]) + '\t' + str(df_PGE_hydro_mins.loc[d*24+h,fd]) + '\t' + str(df_CA_import_mins61.loc[d*24+h,fd]) + '\t' + str(df_CA_import_mins66.loc[d*24+h,fd]) + '\t' + str(df_CA_import_mins46.loc[d*24+h,fd]) + '\t' + str(df_CA_import_mins42.loc[d*24+h,fd]) + '\n')
         f.write(';\n\n')
+
+        #system wide (hourly)
+        f.write('param:' + '\t' + 'SimReserves:=' + '\n')
+        for h in range(0,len(df_load)):
+                f.write(str(h+1) + '\t' + str(df_reserves.loc[h,'reserves'])  + '\n')
+        f.write(';\n\n')
+
 
     return None

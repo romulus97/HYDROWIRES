@@ -36,16 +36,11 @@ Created on Wed Oct  3 21:29:55 2018
 import pandas as pd
 import numpy as np
 
-# Run the following lines if you want to select a random year from the synthetic record
-#to be run through the UC/ED model.
-# df_sim = pd.read_excel('../Stochastic_engine/CA_hydropower/CA_hydro_daily.xlsx')
-# sim_years = len(df_sim)/365
-# year = np.random.uniform(0,1,1)*sim_years
-# year = int(np.floor(year))
+df_sim = pd.read_csv('../Stochastic_engine/CA_hydropower/PGE_valley_hydro.csv')
+sim_years = int(len(df_sim)/365) - 1
 
-sim_years=3
-
-for i in range(0,int(sim_years)):
+for i in range(0,sim_years):
+    
     year=int(i)
 
     ############################################################################
@@ -69,7 +64,7 @@ for i in range(0,int(sim_years)):
     PNW_exchange_time_series.exchange(year)
 
 
-    ############################################################################
+#    ############################################################################
     #                          UC/ED Data File Setup
 
     # CALFIFORNIA
@@ -78,13 +73,15 @@ for i in range(0,int(sim_years)):
     # the model assumes that nuclear power plants in California have been retired.
     hist = 0
     hist_year = 2011
+    
+    operating_horizon = 7 #specify in days
 
     import CA_data_setup
-    CA_data_setup.setup(year,hist,hist_year)
+    CA_data_setup.setup(year,hist,hist_year,operating_horizon)
 
 
     # PACIFIC NORTHWEST
     import PNW_data_setup
-    PNW_data_setup.setup(year)
+    PNW_data_setup.setup(year,operating_horizon)
 
     print(i)
