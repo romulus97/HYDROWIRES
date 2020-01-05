@@ -200,8 +200,8 @@ model.HorizonPath46_SCE_minflow  = Param(model.hh_periods,within=NonNegativeReal
 model.HorizonPath66_minflow  = Param(model.hh_periods,within=NonNegativeReals,mutable=True)
 model.HorizonPath61_minflow  = Param(model.hh_periods,within=NonNegativeReals,mutable=True)
 model.HorizonPath42_minflow  = Param(model.hh_periods,within=NonNegativeReals,mutable=True)
-model.HorizonPGE_valley_hydro_minflow = Param(within=NonNegativeReals,mutable=True)
-model.HorizonSCE_hydro_minflow = Param(within=NonNegativeReals,mutable=True)
+model.HorizonPGE_valley_hydro_minflow = Param(model.hh_periods,within=NonNegativeReals,mutable=True)
+model.HorizonSCE_hydro_minflow = Param(model.hh_periods,within=NonNegativeReals,mutable=True)
 
 
 ##Initial conditions
