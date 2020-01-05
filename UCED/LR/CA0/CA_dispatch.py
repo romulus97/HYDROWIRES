@@ -122,7 +122,6 @@ model.HorizonHours = Param(within=PositiveIntegers)
 model.HH_periods = RangeSet(0,model.HorizonHours)
 model.hh_periods = RangeSet(1,model.HorizonHours)
 model.HorizonDays = Param(within=PositiveIntegers)
-model.hd_periods = RangeSet(1,model.HorizonDays)
 model.ramp_periods = RangeSet(2,model.HorizonHours)
 
 #Demand over simulation period

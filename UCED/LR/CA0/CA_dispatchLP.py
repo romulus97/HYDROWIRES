@@ -125,7 +125,6 @@ model.HorizonDays = Param(within=PositiveIntegers)
 model.hd_periods = RangeSet(1,model.HorizonDays)
 model.h1_periods = RangeSet(1,24)
 model.h2_periods = RangeSet(25,48)
-model.hd_periods = RangeSet(1,model.HorizonDays)
 model.ramp_periods = RangeSet(2, model.HorizonHours)
 
 #Demand over simulation period
@@ -174,14 +173,14 @@ model.SimPath45_imports = Param(model.forecast_days, model.SD_periods, within=No
 model.SimPGE_valley_hydro = Param(model.forecast_days, model.SD_periods, within=NonNegativeReals)
 model.SimSCE_hydro = Param(model.forecast_days, model.SD_periods, within=NonNegativeReals)
 
-model.HorizonPath66_imports = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonPath46_SCE_imports = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonPath61_imports = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonPath42_imports = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonPath24_imports = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonPath45_imports = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonSCE_hydro = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
-model.HorizonPGE_valley_hydro = Param(model.hd_periods, within=NonNegativeReals,mutable=True)
+model.HorizonPath66_imports = Param(within=NonNegativeReals,mutable=True)
+model.HorizonPath46_SCE_imports = Param(within=NonNegativeReals,mutable=True)
+model.HorizonPath61_imports = Param(within=NonNegativeReals,mutable=True)
+model.HorizonPath42_imports = Param(within=NonNegativeReals,mutable=True)
+model.HorizonPath24_imports = Param(within=NonNegativeReals,mutable=True)
+model.HorizonPath45_imports = Param(within=NonNegativeReals,mutable=True)
+model.HorizonSCE_hydro = Param(within=NonNegativeReals,mutable=True)
+model.HorizonPGE_valley_hydro = Param(within=NonNegativeReals,mutable=True)
 
 #Variable resources over horizon
 model.HorizonWind = Param(model.zones,model.hh_periods,within=NonNegativeReals,mutable=True)
