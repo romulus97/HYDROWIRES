@@ -67,7 +67,7 @@ def sim(days):
         p24_first = []
         p45_first = []
 
-         #load time series data
+        #load time series data
         for z in instance.zones:
 
             instance.GasPrice[z] = instance.SimGasPrice[z,day]
@@ -176,6 +176,7 @@ def sim(days):
         
         for i in K:
                 instance.HorizonReserves[i] = instance.SimReserves[(day-1)*24+i]
+                instance2.HorizonReserves[i] = instance.SimReserves[(day-1)*24+i]
         
         for d in range(1,D+1):
             

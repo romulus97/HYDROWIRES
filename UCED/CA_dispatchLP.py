@@ -551,7 +551,11 @@ model.PumpTime = Constraint(model.PSH,model.hh_periods,rule=PSHC)
 def Ramp1(model,j,i):
     a = model.mwh_1[j,i] + model.mwh_2[j,i] + model.mwh_3[j,i]
     b = model.mwh_1[j,i-1] + model.mwh_2[j,i-1] + model.mwh_3[j,i-1]
-    return abs(a - b) <= model.ramp[j]
+    return a - b <= model.ramp[j]
 model.RampCon1 = Constraint(model.Ramping,model.ramp_periods,rule=Ramp1)
 
-
+def Ramp2(model,j,i):
+    a = model.mwh_1[j,i] + model.mwh_2[j,i] + model.mwh_3[j,i]
+    b = model.mwh_1[j,i-1] + model.mwh_2[j,i-1] + model.mwh_3[j,i-1]
+    return a - b >= -model.ramp[j]
+model.RampCon2 = Constraint(model.Ramping,model.ramp_periods,rule=Ramp2)

@@ -406,9 +406,9 @@ def setup(year,hist,hist_year,operating_horizon):
         f.write('param:' + '\t' + 'SimPath66_exports' + '\t' + 'SimPath42_exports' + '\t' + 'SimPath24_exports' + '\t' + 'SimPath45_exports' + '\t' + 'SimSCE_hydro_minflow' + '\t' + 'SimPGE_valley_hydro_minflow' + '\t' + 'SimPath61_imports_minflow' + '\t' + 'SimPath66_imports_minflow' + '\t' + 'SimPath46_SCE_imports_minflow' + '\t' + 'SimPath42_imports_minflow:=' + '\n')
         
         #first write information for obsolete days
-        for t in range(2,8):
+        for t in range(2,len(forecast_days)+1):
             j=t
-            while j < 8:
+            while j < len(forecast_days)+1:
                 fd =forecast_days[j-1]
                 for h in range(1,25):
                     f.write(fd + '\t' + str((t-2)*24+h) + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0'  + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\n')

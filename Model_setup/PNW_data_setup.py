@@ -308,12 +308,21 @@ def setup(year,operating_horizon):
         f.write('param:' + '\t' + 'SimPath66_imports' + '\t' + 'SimPath65_imports' + '\t' + 'SimPath3_imports' + '\t' + 'SimPath8_imports' + '\t' + 'SimPath14_imports' + '\t' + 'SimPNW_hydro:=' + '\n')
         for d in range(0,len(df_imports)):
             for fd in forecast_days:
-                f.write(str(d+1) + '\t' + fd + '\t' + str(df_imports66.loc[d,fd]) + '\t' + str(df_imports65.loc[d,fd]) + '\t' + str(df_imports3.loc[d,fd]) + '\t' + str(df_imports8.loc[d,fd]) + '\t' + str(df_imports14.loc[d,fd]) + '\t' + str(df_hydro.loc[d,fd]) + '\n')
+                f.write(fd + '\t' + str(d+1) + '\t' + str(df_imports66.loc[d,fd]) + '\t' + str(df_imports65.loc[d,fd]) + '\t' + str(df_imports3.loc[d,fd]) + '\t' + str(df_imports8.loc[d,fd]) + '\t' + str(df_imports14.loc[d,fd]) + '\t' + str(df_hydro.loc[d,fd]) + '\n')
         f.write(';\n\n')
-
 
         #system wide (hourly)
         f.write('param:' + '\t' + 'SimPath66_exports' + '\t' + 'SimPath65_exports' + '\t' + 'SimPath3_exports' + '\t' + 'SimPath8_exports' + '\t' + 'SimPath14_exports' + '\t' + 'SimPNW_hydro_minflow' + '\t' + 'SimPath3_imports_minflow' + '\t' + 'SimPath8_imports_minflow' + '\t' + 'SimPath65_imports_minflow' + '\t' + 'SimPath66_imports_minflow' + '\t' + 'SimPath14_imports_minflow:=' + '\n')
+
+        #first write information for obsolete days
+        for t in range(2,len(forecast_days)+1):
+            j=t
+            while j < len(forecast_days)+1:
+                fd =forecast_days[j-1]
+                for h in range(1,25):
+                    f.write(fd + '\t' + str((t-2)*24+h) + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0'  + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\n')
+                j=j+1
+
         for d in range(0,len(df_imports66)):
             for fd in forecast_days:
                 fd_index = forecast_days.index(fd) 
