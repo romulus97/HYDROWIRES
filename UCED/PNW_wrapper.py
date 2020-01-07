@@ -230,14 +230,14 @@ def sim(days):
         
         print ("Duals")
     
-#        for c in instance2.component_objects(Constraint, active=True):
-#    #        print ("   Constraint",c)
-#            cobject = getattr(instance2, str(c))
-#            if str(c) == 'Bal5Constraint':
-#                for index in cobject:
-#                     if int(index>0 and index<25):
-#    #                print ("   Constraint",c)
-#                         Duals.append((str(c),index+((day-1)*24), instance2.dual[cobject[index]]))
+        for c in instance2.component_objects(Constraint, active=True):
+    #        print ("   Constraint",c)
+            cobject = getattr(instance2, str(c))
+            if str(c) == 'Bal5Constraint':
+                for index in cobject:
+                     if int(index>0 and index<25):
+    #                print ("   Constraint",c)
+                         Duals.append((str(c),index+((day-1)*24), instance2.dual[cobject[index]]))
 
     #            print ("      ", index, instance2.dual[cobject[index]])
 
