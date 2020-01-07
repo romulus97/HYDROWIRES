@@ -185,11 +185,11 @@ def sim(days):
                 instance.HorizonPath66_exports[(d-1)*24+j] = instance.SimPath66_exports[fd,(day-1)*24+j]    
                 instance.HorizonPath65_exports[(d-1)*24+j] = instance.SimPath65_exports[fd,(day-1)*24+j]    
                 instance.HorizonPNW_hydro_minflow[(d-1)*24+j] = instance.SimPNW_hydro_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath3_minflow[(d-1)*24+j] = instance.SimPath3_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath8_minflow[(d-1)*24+j] = instance.SimPath8_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath14_minflow[(d-1)*24+j] = instance.SimPath14_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath65_minflow[(d-1)*24+j] = instance.SimPath65_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath66_minflow[(d-1)*24+j] = instance.SimPath66_minflow[fd,(day-1)*24+j]
+                instance.HorizonPath3_minflow[(d-1)*24+j] = instance.SimPath3_imports_minflow[fd,(day-1)*24+j]
+                instance.HorizonPath8_minflow[(d-1)*24+j] = instance.SimPath8_imports_minflow[fd,(day-1)*24+j]
+                instance.HorizonPath14_minflow[(d-1)*24+j] = instance.SimPath14_imports_minflow[fd,(day-1)*24+j]
+                instance.HorizonPath65_minflow[(d-1)*24+j] = instance.SimPath65_imports_minflow[fd,(day-1)*24+j]
+                instance.HorizonPath66_minflow[(d-1)*24+j] = instance.SimPath66_imports_minflow[fd,(day-1)*24+j]
 
                 instance2.HorizonPath3_exports[(d-1)*24+j] = instance.SimPath3_exports[fd,(day-1)*24+j]
                 instance2.HorizonPath8_exports[(d-1)*24+j] = instance.SimPath8_exports[fd,(day-1)*24+j]
@@ -197,11 +197,11 @@ def sim(days):
                 instance2.HorizonPath66_exports[(d-1)*24+j] = instance.SimPath66_exports[fd,(day-1)*24+j]    
                 instance2.HorizonPath65_exports[(d-1)*24+j] = instance.SimPath65_exports[fd,(day-1)*24+j]    
                 instance2.HorizonPNW_hydro_minflow[(d-1)*24+j] = instance.SimPNW_hydro_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath3_minflow[(d-1)*24+j] = instance.SimPath3_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath8_minflow[(d-1)*24+j] = instance.SimPath8_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath14_minflow[(d-1)*24+j] = instance.SimPath14_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath65_minflow[(d-1)*24+j] = instance.SimPath65_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath66_minflow[(d-1)*24+j] = instance.SimPath66_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath3_minflow[(d-1)*24+j] = instance.SimPath3_imports_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath8_minflow[(d-1)*24+j] = instance.SimPath8_imports_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath14_minflow[(d-1)*24+j] = instance.SimPath14_imports_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath65_minflow[(d-1)*24+j] = instance.SimPath65_imports_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath66_minflow[(d-1)*24+j] = instance.SimPath66_imports_minflow[fd,(day-1)*24+j]
 #            
         PNW_result = opt.solve(instance)
         instance.solutions.load_from(PNW_result)   
@@ -230,14 +230,15 @@ def sim(days):
         
         print ("Duals")
     
-        for c in instance2.component_objects(Constraint, active=True):
-    #        print ("   Constraint",c)
-            cobject = getattr(instance2, str(c))
-            if str(c) == 'Bal5Constraint':
-                for index in cobject:
-                     if int(index>0 and index<25):
-    #                print ("   Constraint",c)
-                         Duals.append((str(c),index+((day-1)*24), instance2.dual[cobject[index]]))
+#        for c in instance2.component_objects(Constraint, active=True):
+#    #        print ("   Constraint",c)
+#            cobject = getattr(instance2, str(c))
+#            if str(c) == 'Bal5Constraint':
+#                for index in cobject:
+#                     if int(index>0 and index<25):
+#    #                print ("   Constraint",c)
+#                         Duals.append((str(c),index+((day-1)*24), instance2.dual[cobject[index]]))
+
     #            print ("      ", index, instance2.dual[cobject[index]])
 
      

@@ -200,7 +200,7 @@ def exchange(year):
     
     #Path 65
     path_profiles65 = pd.read_excel('Path_setup/PNW_path_export_profiles.xlsx',sheet_name='Path65',header=None)
-    pp65 = path_profiles65.values*-1
+    pp65 = path_profiles65.values
     
     #Path 14
     path_profiles14 = pd.read_excel('Path_setup/PNW_path_export_profiles.xlsx',sheet_name='Path14',header=None)
@@ -208,11 +208,11 @@ def exchange(year):
     
     #Path 3
     path_profiles3 = pd.read_excel('Path_setup/PNW_path_export_profiles.xlsx',sheet_name='Path3',header=None)
-    pp3 = path_profiles3.values*-1
+    pp3 = path_profiles3.values
     
     #Path 66
     path_profiles66 = pd.read_excel('Path_setup/PNW_path_export_profiles.xlsx',sheet_name='Path66',header=None)
-    pp66 = path_profiles66.values*-1
+    pp66 = path_profiles66.values
     
     #Path 8
     path_profiles8 = pd.read_excel('Path_setup/PNW_path_export_profiles.xlsx',sheet_name='Path8',header=None)
@@ -224,14 +224,14 @@ def exchange(year):
             
             fd_index = forecast_days.index(fd)
             
-            if df_Path66.loc[i,fd] < 0:
-                e66[i*24:i*24+24,fd_index] = pp66[i,:]*df_Path66.loc[i,fd]*-1
+            if df_Path66.loc[i,fd]*-1 < 0:
+                e66[i*24:i*24+24,fd_index] = pp66[i,:]*df_Path66.loc[i,fd]
     
-            if df_Path65.loc[i,fd] < 0:
-                e65[i*24:i*24+24,fd_index] = pp65[i,:]*df_Path65.loc[i,fd]*-1
+            if df_Path65.loc[i,fd]*-1 < 0:
+                e65[i*24:i*24+24,fd_index] = pp65[i,:]*df_Path65.loc[i,fd]
     
-            if df_Path3.loc[i,fd] < 0:
-                e3[i*24:i*24+24,fd_index] = pp3[i,:]*df_Path3.loc[i,fd]*-1
+            if df_Path3.loc[i,fd]*-1 < 0:
+                e3[i*24:i*24+24,fd_index] = pp3[i,:]*df_Path3.loc[i,fd]
     
             if df_Path8.loc[i,fd] < 0:
                 e8[i*24:i*24+24,fd_index] = pp8[i,:]*df_Path8.loc[i,fd]*-1   

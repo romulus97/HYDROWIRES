@@ -185,11 +185,11 @@ def sim(days):
                 instance.HorizonPath66_exports[(d-1)*24+j] = instance.SimPath66_exports[fd,(day-1)*24+j]    
                 instance.HorizonPath65_exports[(d-1)*24+j] = instance.SimPath65_exports[fd,(day-1)*24+j]    
                 instance.HorizonPNW_hydro_minflow[(d-1)*24+j] = instance.SimPNW_hydro_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath3_minflow[(d-1)*24+j] = instance.SimPath3_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath8_minflow[(d-1)*24+j] = instance.SimPath8_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath14_minflow[(d-1)*24+j] = instance.SimPath14_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath65_minflow[(d-1)*24+j] = instance.SimPath65_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath66_minflow[(d-1)*24+j] = instance.SimPath66_minflow[fd,(day-1)*24+j]
+                instance.HorizonPath3_minflow[(d-1)*24+j] = instance.SimPath3_imports_minflow[fd,(day-1)*24+j]
+                instance.HorizonPath8_minflow[(d-1)*24+j] = instance.SimPath8_imports_minflow[fd,(day-1)*24+j]
+                instance.HorizonPath14_minflow[(d-1)*24+j] = instance.SimPath14_imports_minflow[fd,(day-1)*24+j]
+                instance.HorizonPath65_minflow[(d-1)*24+j] = instance.SimPath65_imports_minflow[fd,(day-1)*24+j]
+                instance.HorizonPath66_minflow[(d-1)*24+j] = instance.SimPath66_imports_minflow[fd,(day-1)*24+j]
 
                 instance2.HorizonPath3_exports[(d-1)*24+j] = instance.SimPath3_exports[fd,(day-1)*24+j]
                 instance2.HorizonPath8_exports[(d-1)*24+j] = instance.SimPath8_exports[fd,(day-1)*24+j]
@@ -197,11 +197,11 @@ def sim(days):
                 instance2.HorizonPath66_exports[(d-1)*24+j] = instance.SimPath66_exports[fd,(day-1)*24+j]    
                 instance2.HorizonPath65_exports[(d-1)*24+j] = instance.SimPath65_exports[fd,(day-1)*24+j]    
                 instance2.HorizonPNW_hydro_minflow[(d-1)*24+j] = instance.SimPNW_hydro_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath3_minflow[(d-1)*24+j] = instance.SimPath3_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath8_minflow[(d-1)*24+j] = instance.SimPath8_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath14_minflow[(d-1)*24+j] = instance.SimPath14_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath65_minflow[(d-1)*24+j] = instance.SimPath65_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath66_minflow[(d-1)*24+j] = instance.SimPath66_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath3_minflow[(d-1)*24+j] = instance.SimPath3_imports_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath8_minflow[(d-1)*24+j] = instance.SimPath8_imports_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath14_minflow[(d-1)*24+j] = instance.SimPath14_imports_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath65_minflow[(d-1)*24+j] = instance.SimPath65_imports_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath66_minflow[(d-1)*24+j] = instance.SimPath66_imports_minflow[fd,(day-1)*24+j]
 #            
         PNW_result = opt.solve(instance)
         instance.solutions.load_from(PNW_result)   
@@ -238,7 +238,8 @@ def sim(days):
                      if int(index>0 and index<25):
     #                print ("   Constraint",c)
                          Duals.append((str(c),index+((day-1)*24), instance2.dual[cobject[index]]))
-    #            print ("      ", index, instance2.dual[cobject[index]])
+
+                print ("      ", index, instance2.dual[cobject[index]])
 
      
         #The following section is for storing and sorting results
@@ -507,7 +508,7 @@ def sim(days):
     nrsv_pd=pd.DataFrame(nrsv,columns=('Generator','Time','Value','Zones'))
     solar_pd=pd.DataFrame(solar,columns=('Zone','Time','Value'))
     wind_pd=pd.DataFrame(wind,columns=('Zone','Time','Value'))
-    shadow_price=pd.DataFrame(Duals,columns=('Constraint','Time','Value'))
+#    shadow_price=pd.DataFrame(Duals,columns=('Constraint','Time','Value'))
         
     mwh_1_pd.to_csv('mwh_1.csv')
     mwh_2_pd.to_csv('mwh_2.csv')
@@ -518,6 +519,6 @@ def sim(days):
     nrsv_pd.to_csv('nrsv.csv')
     solar_pd.to_csv('solar_out.csv')
     wind_pd.to_csv('wind_out.csv')
-    shadow_price.to_csv('shadow_price.csv')
-    
+#    shadow_price.to_csv('shadow_price.csv')
+#    
     return None
