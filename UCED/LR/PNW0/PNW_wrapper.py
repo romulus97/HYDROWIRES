@@ -203,7 +203,7 @@ def sim(days):
                 instance2.HorizonPath65_minflow[(d-1)*24+j] = instance.SimPath65_imports_minflow[fd,(day-1)*24+j]
                 instance2.HorizonPath66_minflow[(d-1)*24+j] = instance.SimPath66_imports_minflow[fd,(day-1)*24+j]
 #            
-        PNW_result = opt.solve(instance)
+        PNW_result = opt.solve(opt.solve(instance,tee=True,symbolic_solver_labels=True))
         instance.solutions.load_from(PNW_result)   
         
         for j in instance.Generators:
@@ -224,7 +224,7 @@ def sim(days):
                     instance2.switch[j,t] = 0
                     instance2.switch[j,t].fixed = True
                     
-        results = opt.solve(instance2)
+        results = opt.solve(opt.solve(instance2,tee=True,symbolic_solver_labels=True))
         instance2.solutions.load_from(results)
         
         
@@ -239,7 +239,7 @@ def sim(days):
     #                print ("   Constraint",c)
                          Duals.append((str(c),index+((day-1)*24), instance2.dual[cobject[index]]))
 
-                print ("      ", index, instance2.dual[cobject[index]])
+    #            print ("      ", index, instance2.dual[cobject[index]])
 
      
         #The following section is for storing and sorting results
@@ -508,7 +508,7 @@ def sim(days):
     nrsv_pd=pd.DataFrame(nrsv,columns=('Generator','Time','Value','Zones'))
     solar_pd=pd.DataFrame(solar,columns=('Zone','Time','Value'))
     wind_pd=pd.DataFrame(wind,columns=('Zone','Time','Value'))
-#    shadow_price=pd.DataFrame(Duals,columns=('Constraint','Time','Value'))
+    shadow_price=pd.DataFrame(Duals,columns=('Constraint','Time','Value'))
         
     mwh_1_pd.to_csv('mwh_1.csv')
     mwh_2_pd.to_csv('mwh_2.csv')
@@ -519,6 +519,6 @@ def sim(days):
     nrsv_pd.to_csv('nrsv.csv')
     solar_pd.to_csv('solar_out.csv')
     wind_pd.to_csv('wind_out.csv')
-#    shadow_price.to_csv('shadow_price.csv')
-#    
+    shadow_price.to_csv('shadow_price.csv')
+    
     return None

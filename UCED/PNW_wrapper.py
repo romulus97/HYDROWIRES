@@ -203,7 +203,7 @@ def sim(days):
                 instance2.HorizonPath65_minflow[(d-1)*24+j] = instance.SimPath65_imports_minflow[fd,(day-1)*24+j]
                 instance2.HorizonPath66_minflow[(d-1)*24+j] = instance.SimPath66_imports_minflow[fd,(day-1)*24+j]
 #            
-        PNW_result = opt.solve(instance)
+        PNW_result = opt.solve(opt.solve(instance,tee=True,symbolic_solver_labels=True))
         instance.solutions.load_from(PNW_result)   
         
         for j in instance.Generators:
@@ -224,7 +224,7 @@ def sim(days):
                     instance2.switch[j,t] = 0
                     instance2.switch[j,t].fixed = True
                     
-        results = opt.solve(instance2)
+        results = opt.solve(opt.solve(instance2,tee=True,symbolic_solver_labels=True))
         instance2.solutions.load_from(results)
         
         
