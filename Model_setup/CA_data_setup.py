@@ -157,6 +157,8 @@ def setup(year,hist,hist_year,operating_horizon):
     wrapper_file='../UCED/CA_wrapper.py'
     simulation_file='../UCED/CA_simulation.py'
     price_cal_file='../UCED/CA_price_calculation.py'
+    emission_gen_file = '../UCED/emissions_generator.csv'
+    emission_calc_file = '../UCED/emission_calculation.py'
 
     copy(dispatch_file,path)
     copy(wrapper_file,path)
@@ -164,6 +166,8 @@ def setup(year,hist,hist_year,operating_horizon):
     copy(price_cal_file,path)
     copy(dispatchLP_file,path)
     copy(generators_file,path)
+    copy(emission_gen_file,path)
+    copy(emission_calc_file,path)
 
 
     filename = path + '/data.dat'
