@@ -38,7 +38,7 @@ def sim(days):
     
     instance2.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)
     opt = SolverFactory("cplex")
-   
+       
     
     H = instance.HorizonHours
     D = int(H/24)
@@ -59,7 +59,7 @@ def sim(days):
     Duals=[]
     
     df_generators = pd.read_csv('generators.csv',header=0)
-
+    
     # forecast days
     forecast_days = []
     for f in range(1,D+1):
@@ -91,11 +91,11 @@ def sim(days):
                 instance.HorizonWind[z,i] = instance.SimWind[z,(day-1)*24+i]
                 instance.HorizonSolar[z,i] = instance.SimSolar[z,(day-1)*24+i]
                 instance.HorizonMustRun[z,i] = instance.SimMustRun[z,(day-1)*24+i]
-
-                instance2.HorizonDemand[z,i] = instance.SimDemand[z,(day-1)*24+i]
-                instance2.HorizonWind[z,i] = instance.SimWind[z,(day-1)*24+i]
-                instance2.HorizonSolar[z,i] = instance.SimSolar[z,(day-1)*24+i]
-                instance2.HorizonMustRun[z,i] = instance.SimMustRun[z,(day-1)*24+i]
+    
+                instance2.HorizonDemand[z,i] = instance2.SimDemand[z,(day-1)*24+i]
+                instance2.HorizonWind[z,i] = instance2.SimWind[z,(day-1)*24+i]
+                instance2.HorizonSolar[z,i] = instance2.SimSolar[z,(day-1)*24+i]
+                instance2.HorizonMustRun[z,i] = instance2.SimMustRun[z,(day-1)*24+i]
         
         pnw = 0
         p66 = 0
@@ -131,7 +131,7 @@ def sim(days):
             instance.HorizonPath3_imports = p3
             instance.HorizonPath8_imports = p8
             instance.HorizonPath14_imports = p14
-
+    
             instance2.HorizonPNW_hydro = pnw
             instance2.HorizonPath66_imports = p66
             instance2.HorizonPath65_imports = p65
@@ -155,13 +155,13 @@ def sim(days):
             instance.HorizonPath8_imports = np.max((0,p8 - np.sum(p8_first) + instance.SimPath8_imports['fd1',day-1] - p8_deficit))
             instance.HorizonPath14_imports = np.max((0,p14 - np.sum(p14_first) + instance.SimPath14_imports['fd1',day-1] - p14_deficit))
         
-            instance2.HorizonPNW_hydro = np.max((0,pnw - np.sum(pnwH_first) + instance.SimPNW_hydro['fd1',day-1] - pnw_deficit))   
-            instance2.HorizonPath66_imports = np.max((0,p66 - np.sum(p66_first) + instance.SimPath66_imports['fd1',day-1] - p66_deficit))
-            instance2.HorizonPath65_imports = np.max((0,p65 - np.sum(p65_first) + instance.SimPath65_imports['fd1',day-1] - p65_deficit))
-            instance2.HorizonPath3_imports = np.max((0,p3 - np.sum(p3_first) + instance.SimPath3_imports['fd1',day-1] - p3_deficit))
-            instance2.HorizonPath8_imports = np.max((0,p8 - np.sum(p8_first) + instance.SimPath8_imports['fd1',day-1] - p8_deficit))
-            instance2.HorizonPath14_imports = np.max((0,p14 - np.sum(p14_first) + instance.SimPath14_imports['fd1',day-1] - p14_deficit))
-
+            instance2.HorizonPNW_hydro = np.max((0,pnw - np.sum(pnwH_first) + instance2.SimPNW_hydro['fd1',day-1] - pnw_deficit))   
+            instance2.HorizonPath66_imports = np.max((0,p66 - np.sum(p66_first) + instance2.SimPath66_imports['fd1',day-1] - p66_deficit))
+            instance2.HorizonPath65_imports = np.max((0,p65 - np.sum(p65_first) + instance2.SimPath65_imports['fd1',day-1] - p65_deficit))
+            instance2.HorizonPath3_imports = np.max((0,p3 - np.sum(p3_first) + instance2.SimPath3_imports['fd1',day-1] - p3_deficit))
+            instance2.HorizonPath8_imports = np.max((0,p8 - np.sum(p8_first) + instance2.SimPath8_imports['fd1',day-1] - p8_deficit))
+            instance2.HorizonPath14_imports = np.max((0,p14 - np.sum(p14_first) + instance2.SimPath14_imports['fd1',day-1] - p14_deficit))
+    
             pnw_deficit = np.max((0,pnw_deficit - pnw - np.sum(pnwH_first) + instance.SimPNW_hydro['fd1',day-1]))
             p66_deficit = np.max((0,p66_deficit - p66 - np.sum(p66_first) + instance.SimPath66_imports['fd1',day-1]))
             p65_deficit = np.max((0,p65_deficit - p65 - np.sum(p65_first) + instance.SimPath65_imports['fd1',day-1]))
@@ -171,7 +171,7 @@ def sim(days):
        
         for i in K:
             instance.HorizonReserves[i] = instance.SimReserves[(day-1)*24+i] 
-            instance2.HorizonReserves[i] = instance.SimReserves[(day-1)*24+i] 
+            instance2.HorizonReserves[i] = instance2.SimReserves[(day-1)*24+i] 
            
         for d in range(1,D+1):
             
@@ -190,20 +190,20 @@ def sim(days):
                 instance.HorizonPath14_minflow[(d-1)*24+j] = instance.SimPath14_imports_minflow[fd,(day-1)*24+j]
                 instance.HorizonPath65_minflow[(d-1)*24+j] = instance.SimPath65_imports_minflow[fd,(day-1)*24+j]
                 instance.HorizonPath66_minflow[(d-1)*24+j] = instance.SimPath66_imports_minflow[fd,(day-1)*24+j]
-
-                instance2.HorizonPath3_exports[(d-1)*24+j] = instance.SimPath3_exports[fd,(day-1)*24+j]
-                instance2.HorizonPath8_exports[(d-1)*24+j] = instance.SimPath8_exports[fd,(day-1)*24+j]
-                instance2.HorizonPath14_exports[(d-1)*24+j] = instance.SimPath14_exports[fd,(day-1)*24+j]
-                instance2.HorizonPath66_exports[(d-1)*24+j] = instance.SimPath66_exports[fd,(day-1)*24+j]    
-                instance2.HorizonPath65_exports[(d-1)*24+j] = instance.SimPath65_exports[fd,(day-1)*24+j]    
-                instance2.HorizonPNW_hydro_minflow[(d-1)*24+j] = instance.SimPNW_hydro_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath3_minflow[(d-1)*24+j] = instance.SimPath3_imports_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath8_minflow[(d-1)*24+j] = instance.SimPath8_imports_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath14_minflow[(d-1)*24+j] = instance.SimPath14_imports_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath65_minflow[(d-1)*24+j] = instance.SimPath65_imports_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath66_minflow[(d-1)*24+j] = instance.SimPath66_imports_minflow[fd,(day-1)*24+j]
-#            
-        PNW_result = opt.solve(opt.solve(instance,tee=True,symbolic_solver_labels=True))
+    
+                instance2.HorizonPath3_exports[(d-1)*24+j] = instance2.SimPath3_exports[fd,(day-1)*24+j]
+                instance2.HorizonPath8_exports[(d-1)*24+j] = instance2.SimPath8_exports[fd,(day-1)*24+j]
+                instance2.HorizonPath14_exports[(d-1)*24+j] = instance2.SimPath14_exports[fd,(day-1)*24+j]
+                instance2.HorizonPath66_exports[(d-1)*24+j] = instance2.SimPath66_exports[fd,(day-1)*24+j]    
+                instance2.HorizonPath65_exports[(d-1)*24+j] = instance2.SimPath65_exports[fd,(day-1)*24+j]    
+                instance2.HorizonPNW_hydro_minflow[(d-1)*24+j] = instance2.SimPNW_hydro_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath3_minflow[(d-1)*24+j] = instance2.SimPath3_imports_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath8_minflow[(d-1)*24+j] = instance2.SimPath8_imports_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath14_minflow[(d-1)*24+j] = instance2.SimPath14_imports_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath65_minflow[(d-1)*24+j] = instance2.SimPath65_imports_minflow[fd,(day-1)*24+j]
+                instance2.HorizonPath66_minflow[(d-1)*24+j] = instance2.SimPath66_imports_minflow[fd,(day-1)*24+j]
+    #            
+        PNW_result = opt.solve(instance,tee=True,symbolic_solver_labels=True)
         instance.solutions.load_from(PNW_result)   
         
         for j in instance.Generators:
@@ -215,7 +215,7 @@ def sim(days):
                     instance.on[j,t] = 0
                     instance2.on[j,t] = 0
                     instance2.on[j,t].fixed = True
-
+    
                 if instance.switch[j,t] == 1:
                     instance2.switch[j,t] = 1
                     instance2.switch[j,t].fixed = True
@@ -224,12 +224,12 @@ def sim(days):
                     instance2.switch[j,t] = 0
                     instance2.switch[j,t].fixed = True
                     
-        results = opt.solve(opt.solve(instance2,tee=True,symbolic_solver_labels=True))
+        results = opt.solve(instance2,tee=True,symbolic_solver_labels=True)
         instance2.solutions.load_from(results)
         
         
         print ("Duals")
-    
+        
         for c in instance2.component_objects(Constraint, active=True):
     #        print ("   Constraint",c)
             cobject = getattr(instance2, str(c))
@@ -238,9 +238,9 @@ def sim(days):
                      if int(index>0 and index<25):
     #                print ("   Constraint",c)
                          Duals.append((str(c),index+((day-1)*24), instance2.dual[cobject[index]]))
-
+    
     #            print ("      ", index, instance2.dual[cobject[index]])
-
+    
      
         #The following section is for storing and sorting results
         for v in instance.component_objects(Var, active=True):

@@ -183,7 +183,7 @@ model.HorizonPath3_minflow  = Param(model.hh_periods,within=NonNegativeReals,mut
 model.HorizonPNW_hydro_minflow = Param(model.hh_periods,within=NonNegativeReals,mutable=True)
 
 ##Initial conditions
-model.ini_on = Param(model.Generators, within=Binary, initialize=0,mutable=True)
+model.ini_on = Param(model.Generators, within=NonNegativeReals, initialize=0,mutable=True)
 model.ini_mwh_1 = Param(model.Generators,initialize=0,mutable=True) #seg1
 model.ini_mwh_2 = Param(model.Generators,initialize=0,mutable=True) #seg2
 model.ini_mwh_3 = Param(model.Generators,initialize=0,mutable=True) #seg3
@@ -198,10 +198,10 @@ model.mwh_2 = Var(model.Generators,model.HH_periods, within=NonNegativeReals,ini
 model.mwh_3 = Var(model.Generators,model.HH_periods, within=NonNegativeReals,initialize=0)
 
 #1 if unit is on in hour i
-model.on = Var(model.Generators,model.HH_periods, within=Binary, initialize=0)
+model.on = Var(model.Generators,model.HH_periods, within=NonNegativeReals, initialize=0)
 
 #1 if unit is switching on in hour i
-model.switch = Var(model.Generators,model.HH_periods, within=Binary,initialize=0)
+model.switch = Var(model.Generators,model.HH_periods, within=NonNegativeReals,initialize=0)
 
 #Amount of spining reserce offered by each unit in each hour
 model.srsv = Var(model.Generators,model.HH_periods, within=NonNegativeReals,initialize=0)
