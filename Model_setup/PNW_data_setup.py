@@ -304,12 +304,35 @@ def setup(year,operating_horizon,perfect_foresight):
                 f.write(z + '\t' + str(d+1) + '\t' + str(df_ng.loc[d,z]) + '\n')
         f.write(';\n\n')
 
-        #system wide (daily)
-        f.write('param:' + '\t' + 'SimPath66_imports' + '\t' + 'SimPath65_imports' + '\t' + 'SimPath3_imports' + '\t' + 'SimPath8_imports' + '\t' + 'SimPath14_imports' + '\t' + 'SimPNW_hydro:=' + '\n')
-        for d in range(0,len(df_imports)):
-            for fd in forecast_days:
-                f.write(fd + '\t' + str(d+1) + '\t' + str(df_imports66.loc[d,fd]) + '\t' + str(df_imports65.loc[d,fd]) + '\t' + str(df_imports3.loc[d,fd]) + '\t' + str(df_imports8.loc[d,fd]) + '\t' + str(df_imports14.loc[d,fd]) + '\t' + str(df_hydro.loc[d,fd]) + '\n')
-        f.write(';\n\n')
+        if perfect_foresight > 0:
+            #system wide (daily)
+            f.write('param:' + '\t' + 'SimPath66_imports' + '\t' + 'SimPath65_imports' + '\t' + 'SimPath3_imports' + '\t' + 'SimPath8_imports' + '\t' + 'SimPath14_imports' + '\t' + 'SimPNW_hydro:=' + '\n')
+            for d in range(0,len(df_imports66)):
+                if d <= len(df_imports66) - len(forecast_days):
+                    for fd in forecast_days:
+                        fd_index = forecast_days.index(fd)
+                        f.write(fd + '\t' + str(d+1) + '\t' + str(df_imports66.loc[d+fd_index,'fd1']) + '\t' + str(df_imports65.loc[d+fd_index,'fd1']) + '\t' + str(df_imports3.loc[d+fd_index,'fd1']) + '\t' + str(df_imports8.loc[d+fd_index,'fd1']) + '\t' + str(df_imports14.loc[d+fd_index,'fd1']) + '\t' + str(df_hydro.loc[d+fd_index,'fd1']) + '\n')
+
+                else:
+                    diff = d - len(df_imports66) - len(forecast_days)
+                    diff_days = len(forecast_days) - diff
+                    for fd in forecast_days:
+                        fd_index = forecast_days.index(fd)
+                        if fd_index < diff_days:
+                            f.write(fd + '\t' + str(d+1) + '\t' + str(df_imports66.loc[d+fd_index,'fd1']) + '\t' + str(df_imports65.loc[d+fd_index,'fd1']) + '\t' + str(df_imports3.loc[d+fd_index,'fd1']) + '\t' + str(df_imports8.loc[d+fd_index,'fd1']) + '\t' + str(df_imports14.loc[d+fd_index,'fd1']) + '\t' + str(df_hydro.loc[d+fd_index,'fd1']) + '\n')
+                        else:
+                            f.write(fd + '\t' + str(d+1) + '\t' + str(df_imports66.loc[d,fd]) + '\t' + str(df_imports65.loc[d,fd]) + '\t' + str(df_imports3.loc[d,fd]) + '\t' + str(df_imports8.loc[d,fd]) + '\t' + str(df_imports14.loc[d,fd]) + '\t' + str(df_hydro.loc[d,fd]) + '\n')
+            
+            f.write(';\n\n')
+           
+            
+        else:
+            #system wide (daily)
+            f.write('param:' + '\t' + 'SimPath66_imports' + '\t' + 'SimPath65_imports' + '\t' + 'SimPath3_imports' + '\t' + 'SimPath8_imports' + '\t' + 'SimPath14_imports' + '\t' + 'SimPNW_hydro:=' + '\n')
+            for d in range(0,len(df_imports)):
+                for fd in forecast_days:
+                    f.write(fd + '\t' + str(d+1) + '\t' + str(df_imports66.loc[d,fd]) + '\t' + str(df_imports65.loc[d,fd]) + '\t' + str(df_imports3.loc[d,fd]) + '\t' + str(df_imports8.loc[d,fd]) + '\t' + str(df_imports14.loc[d,fd]) + '\t' + str(df_hydro.loc[d,fd]) + '\n')
+            f.write(';\n\n')
 
         #system wide (hourly)
         f.write('param:' + '\t' + 'SimPath66_exports' + '\t' + 'SimPath65_exports' + '\t' + 'SimPath3_exports' + '\t' + 'SimPath8_exports' + '\t' + 'SimPath14_exports' + '\t' + 'SimPNW_hydro_minflow' + '\t' + 'SimPath3_imports_minflow' + '\t' + 'SimPath8_imports_minflow' + '\t' + 'SimPath65_imports_minflow' + '\t' + 'SimPath66_imports_minflow' + '\t' + 'SimPath14_imports_minflow:=' + '\n')
@@ -322,13 +345,22 @@ def setup(year,operating_horizon,perfect_foresight):
                 for h in range(1,25):
                     f.write(fd + '\t' + str((t-2)*24+h) + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0'  + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\t' + '0' + '\n')
                 j=j+1
-
-        for d in range(0,len(df_imports66)):
-            for fd in forecast_days:
-                fd_index = forecast_days.index(fd) 
-                for h in range(0,24):   
-                    f.write(fd + '\t' + str(d*24+fd_index*24+h+1) + '\t' + str(df_exports66.loc[d*24+h,fd]) + '\t' + str(df_exports65.loc[d*24+h,fd]) + '\t' + str(df_exports3.loc[d*24+h,fd]) + '\t' + str(df_exports8.loc[d*24+h,fd]) + '\t' + str(df_exports14.loc[d*24+h,fd]) + '\t' + str(df_PNW_hydro_mins.loc[d*24+h,fd]) + '\t' + str(df_PNW_import_mins3.loc[d*24+h,fd]) + '\t' + str(df_PNW_import_mins8.loc[d*24+h,fd]) + '\t' + str(df_PNW_import_mins65.loc[d*24+h,fd]) + '\t' + str(df_PNW_import_mins66.loc[d*24+h,fd]) + '\t' + str(df_PNW_import_mins14.loc[d*24+h,fd]) + '\n')
-        f.write(';\n\n')
+        
+        if perfect_foresight > 0:
+            for d in range(0,len(df_imports66)):
+                for fd in forecast_days:
+                    fd_index = forecast_days.index(fd) 
+                    for h in range(0,24):   
+                        f.write(fd + '\t' + str(d*24+fd_index*24+h+1) + '\t' + str(df_exports66.loc[(d+fd_index)*24+h,'fd1']) + '\t' + str(df_exports65.loc[(d+fd_index)*24+h,'fd1']) + '\t' + str(df_exports3.loc[(d+fd_index)*24+h,'fd1']) + '\t' + str(df_exports8.loc[(d+fd_index)*24+h,'fd1']) + '\t' + str(df_exports14.loc[(d+fd_index)*24+h,'fd1']) + '\t' + str(df_PNW_hydro_mins.loc[(d+fd_index)*24+h,'fd1']) + '\t' + str(df_PNW_import_mins3.loc[(d+fd_index)*24+h,'fd1']) + '\t' + str(df_PNW_import_mins8.loc[(d+fd_index)*24+h,'fd1']) + '\t' + str(df_PNW_import_mins65.loc[(d+fd_index)*24+h,'fd1']) + '\t' + str(df_PNW_import_mins66.loc[(d+fd_index)*24+h,'fd1']) + '\t' + str(df_PNW_import_mins14.loc[(d+fd_index)*24+h,'fd1']) + '\n')
+            f.write(';\n\n')
+            
+        else:
+            for d in range(0,len(df_imports66)):
+                for fd in forecast_days:
+                    fd_index = forecast_days.index(fd) 
+                    for h in range(0,24):   
+                        f.write(fd + '\t' + str(d*24+fd_index*24+h+1) + '\t' + str(df_exports66.loc[d*24+h,fd]) + '\t' + str(df_exports65.loc[d*24+h,fd]) + '\t' + str(df_exports3.loc[d*24+h,fd]) + '\t' + str(df_exports8.loc[d*24+h,fd]) + '\t' + str(df_exports14.loc[d*24+h,fd]) + '\t' + str(df_PNW_hydro_mins.loc[d*24+h,fd]) + '\t' + str(df_PNW_import_mins3.loc[d*24+h,fd]) + '\t' + str(df_PNW_import_mins8.loc[d*24+h,fd]) + '\t' + str(df_PNW_import_mins65.loc[d*24+h,fd]) + '\t' + str(df_PNW_import_mins66.loc[d*24+h,fd]) + '\t' + str(df_PNW_import_mins14.loc[d*24+h,fd]) + '\n')
+            f.write(';\n\n')
                 
         #system wide (hourly)
         f.write('param:' + '\t' + 'SimReserves:=' + '\n')
