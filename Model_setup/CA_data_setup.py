@@ -8,7 +8,7 @@ Created on Wed May 03 15:01:31 2017
 import pandas as pd
 import numpy as np
 
-def setup(year,hist,hist_year,operating_horizon):
+def setup(year,hist,hist_year,operating_horizon,perfect_foresight):
 #    year = 0
 #    hist = 0
 #    hist_year = 2010

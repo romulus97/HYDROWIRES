@@ -36,6 +36,8 @@ Created on Wed Oct  3 21:29:55 2018
 import pandas as pd
 import numpy as np
 
+perfect_foresight = 0
+
 df_sim = pd.read_csv('../Stochastic_engine/CA_hydropower/PGE_valley_hydro.csv')
 sim_years = int(len(df_sim)/365) - 1
 
@@ -77,11 +79,11 @@ for i in range(0,sim_years):
     operating_horizon = 7 #specify in days
 
     import CA_data_setup
-    CA_data_setup.setup(year,hist,hist_year,operating_horizon)
+    CA_data_setup.setup(year,hist,hist_year,operating_horizon,perfect_foresight)
 
 
     # PACIFIC NORTHWEST
     import PNW_data_setup
-    PNW_data_setup.setup(year,operating_horizon)
+    PNW_data_setup.setup(year,operating_horizon,perfect_foresight)
 
     print(i)

@@ -8,7 +8,7 @@ Created on Tue Mar  5 16:37:53 2019
 import pandas as pd
 import numpy as np
 
-def setup(year,operating_horizon):
+def setup(year,operating_horizon,perfect_foresight):
 
     #read generator parameters into DataFrame
     df_gen = pd.read_csv('PNW_data_file/generators.csv',header=0)
