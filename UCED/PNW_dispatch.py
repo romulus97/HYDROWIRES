@@ -380,7 +380,7 @@ model.ZeroSumConstraint=Constraint(model.Generators,model.hh_periods,rule=ZeroSu
 #
 ##Switch is 1 if unit is turned on in current period
 def SwitchCon(model,j,i):
-    return model.switch[j,i] >= 1 - model.on[j,i-1] - (1 - model.on[j,i])
+    return model.switch[j,i] >= model.on[j,i] - model.on[j,i-1]  
 model.SwitchConstraint = Constraint(model.Generators,model.hh_periods,rule = SwitchCon)
 #
 #

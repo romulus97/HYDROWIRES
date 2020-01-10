@@ -26,3 +26,4 @@ PNW_wrapper.sim(days)
 #                    WHOLESALE ELECTRICITY PRICES
 
 #import PNW_price_calculation
+import PNW_emission_calculation

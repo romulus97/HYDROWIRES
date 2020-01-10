@@ -57,6 +57,7 @@ def sim(days):
     flow=[]
     Generator=[]
     Duals=[]
+    System_cost = []
     
     df_generators = pd.read_csv('generators.csv',header=0)
     
@@ -205,7 +206,35 @@ def sim(days):
     #            
 #        PNW_result = opt.solve(instance,tee=True,symbolic_solver_labels=True)
         PNW_result = opt.solve(instance)
-        instance.solutions.load_from(PNW_result)   
+        instance.solutions.load_from(PNW_result) 
+        
+        coal1 = sum(instance.mwh_1[j,i]*(instance.seg1[j]*2 + instance.var_om[j]) for i in range(1,25) for j in instance.Coal)
+        coal2 = sum(instance.mwh_2[j,i]*(instance.seg2[j]*2 + instance.var_om[j]) for i in range(1,25) for j in instance.Coal)
+        coal3 = sum(instance.mwh_3[j,i]*(instance.seg3[j]*2 + instance.var_om[j]) for i in range(1,25) for j in instance.Coal)
+        nuc1 = sum(instance.mwh_1[j,i]*(instance.seg1[j]*1 + instance.var_om[j]) for i in range(1,25) for j in instance.Nuclear)
+        nuc2 = sum(instance.mwh_2[j,i]*(instance.seg2[j]*1 + instance.var_om[j]) for i in range(1,25) for j in instance.Nuclear)
+        nuc3 = sum(instance.mwh_3[j,i]*(instance.seg3[j]*1 + instance.var_om[j]) for i in range(1,25) for j in instance.Nuclear)
+        gas1_5 = sum(instance.mwh_1[j,i]*(instance.seg1[j]*instance.GasPrice['PNW'] + instance.var_om[j]) for i in range(1,25) for j in instance.Gas)
+        gas2_5 = sum(instance.mwh_2[j,i]*(instance.seg2[j]*instance.GasPrice['PNW'] + instance.var_om[j]) for i in range(1,25) for j in instance.Gas)
+        gas3_5 = sum(instance.mwh_3[j,i]*(instance.seg3[j]*instance.GasPrice['PNW'] + instance.var_om[j]) for i in range(1,25) for j in instance.Gas)
+        oil1 = sum(instance.mwh_1[j,i]*(instance.seg1[j]*20 + instance.var_om[j]) for i in range(1,25) for j in instance.Oil)
+        oil2 = sum(instance.mwh_2[j,i]*(instance.seg2[j]*20 + instance.var_om[j]) for i in range(1,25) for j in instance.Oil)
+        oil3 = sum(instance.mwh_3[j,i]*(instance.seg3[j]*20 + instance.var_om[j]) for i in range(1,25) for j in instance.Oil)
+        psh1 = sum(instance.mwh_1[j,i]*10 for i in range(1,25) for j in instance.PSH)
+        psh2 = sum(instance.mwh_2[j,i]*10 for i in range(1,25) for j in instance.PSH)
+        psh3 = sum(instance.mwh_3[j,i]*10 for i in range(1,25) for j in instance.PSH)
+        slack1 = sum(instance.mwh_1[j,i]*instance.seg1[j]*10000 for i in range(1,25) for j in instance.Slack)
+        slack2 = sum(instance.mwh_2[j,i]*instance.seg2[j]*10000 for i in range(1,25) for j in instance.Slack)
+        slack3 = sum(instance.mwh_3[j,i]*instance.seg3[j]*10000 for i in range(1,25) for j in instance.Slack)
+        fixed_coal = sum(instance.no_load[j]*instance.on[j,i]*2 for i in range(1,25) for j in instance.Coal)
+        fixed_gas5 = sum(instance.no_load[j]*instance.on[j,i]*instance.GasPrice['PNW'] for i in range(1,25) for j in instance.Gas)
+        fixed_oil = sum(instance.no_load[j]*instance.on[j,i]*20 for i in range(1,25) for j in instance.Oil)
+        fixed_slack = sum(instance.no_load[j]*instance.on[j,i]*10000 for i in range(1,25) for j in instance.Slack)
+        starts = sum(instance.st_cost[j]*instance.switch[j,i] for i in range(1,25) for j in instance.Generators)
+        reserves = sum(instance.nrsv[j,i] for i in range(1,25) for j in instance.Reserves) + sum(instance.nrsv[j,i]*10000 for i in range(1,25) for j in instance.Slack)
+    
+        S = fixed_slack + fixed_oil + fixed_gas5 + fixed_coal + coal1 + coal2 + coal3 + nuc1 + nuc2 + nuc3 + gas1_5 + gas2_5 + gas3_5 + oil1 + oil2 + oil3 + psh1 + psh2 + psh3 + slack1 + slack2 + slack3 + starts + reserves
+        System_cost.append(S)
         
         for j in instance.Generators:
             for t in K:
@@ -511,6 +540,8 @@ def sim(days):
     solar_pd=pd.DataFrame(solar,columns=('Zone','Time','Value'))
     wind_pd=pd.DataFrame(wind,columns=('Zone','Time','Value'))
     shadow_price=pd.DataFrame(Duals,columns=('Constraint','Time','Value'))
+    objective = pd.DataFrame(System_cost)
+
         
     mwh_1_pd.to_csv('mwh_1.csv')
     mwh_2_pd.to_csv('mwh_2.csv')
@@ -522,5 +553,6 @@ def sim(days):
     solar_pd.to_csv('solar_out.csv')
     wind_pd.to_csv('wind_out.csv')
     shadow_price.to_csv('shadow_price.csv')
+    objective.to_csv('obj_function.csv')
     
     return None
