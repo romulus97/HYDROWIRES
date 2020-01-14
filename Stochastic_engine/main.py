@@ -209,7 +209,7 @@ def sim(sim_years):
           
     #convert from kAF to cfs      
     combined = np.column_stack((noresR*504.51198,soresR*504.51198))
-    combined = combined[93:-273]
+    combined = combined[93:-272]
     df_combined = pd.DataFrame(combined)
     df_combined.columns = ['SHA_otf','ORO_otf','YRS_otf','FOL_otf','NML_otf','DNP_otf','EXC_otf','MIL_otf','ISB_otf','SUC_otf','KWH_otf','PFT_otf']
     df_combined.to_csv('ORCA_output.csv')

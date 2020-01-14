@@ -30,7 +30,7 @@ Name_list=Name_list[1:]
 
 df_wind=pd.read_csv('Synthetic_wind_power/wind_power_sim.csv',header=0)
 sim_years = int(len(df_wind)/8760) + 3
-sim_weather=pd.read_csv('Synthetic_weather/synthetic_weather_data.csv',header=0,index_col=0)
+sim_weather=pd.read_csv('Synthetic_weather/synthetic_weather_data.csv',header=0)
 sim_weather = sim_weather.iloc[0:365*sim_years,:]
 sim_weather = sim_weather.iloc[365:len(sim_weather)-730,:]
 sim_weather = sim_weather.reset_index(drop=True)

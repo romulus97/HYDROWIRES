@@ -13,13 +13,13 @@ import matplotlib.pyplot as plt
 
 def hydro(sim_years):
     
-    #########################################################################
-    # This purpose of this script is to use synthetic streamflows at major California
-    # reservoir sites to simulate daily hydropower production for the PG&E and SCE 
-    # zones of the California electricty market (CAISO), using parameters optimized
-    # via a differential evolution algorithm. 
-    #########################################################################
-    
+        #########################################################################
+        # This purpose of this script is to use synthetic streamflows at major California
+        # reservoir sites to simulate daily hydropower production for the PG&E and SCE 
+        # zones of the California electricty market (CAISO), using parameters optimized
+        # via a differential evolution algorithm. 
+        #########################################################################
+        
     # load California storage reservoir (ORCA) sites
     df_sites = pd.read_excel('CA_hydropower/sites.xlsx',sheet_name = 'ORCA',header=0)
     ORCA_sites = list(df_sites)
@@ -31,7 +31,7 @@ def hydro(sim_years):
     calender = pd.read_excel('CA_hydropower/calender.xlsx',header=0)
     
     # load simulated full natural flows at each California storage reservoir (ORCA site)
-    df_sim = pd.read_csv('Synthetic_streamflows/synthetic_streamflows_CA.csv',header=0,index_col=0)
+    df_sim = pd.read_csv('Synthetic_streamflows/synthetic_streamflows_CA.csv',header=0)
     df_sim = df_sim.loc[0:(sim_years+3)*365,:]
        
     # load simulated outflows calculated by ORCA
@@ -759,6 +759,6 @@ def hydro(sim_years):
     #    plt.subplots_adjust(wspace=0.6,hspace=1.2)
     #    
     #    plt.savefig('SCE_perfect_foresight.png', dpi=2000)
-    
+
     return None 
 

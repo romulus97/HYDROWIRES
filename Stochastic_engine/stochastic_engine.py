@@ -27,13 +27,13 @@ starttime = time.time()
 stoch_years=20
 
 # Generate synthetic weather (wind speed and temperature) records. 
-import synthetic_temp_wind_v2
-synthetic_temp_wind_v2.synthetic(stoch_years)
-print('synth weather')
-
-# Generate synthetic streamflow records 
-import synthetic_streamflow_v2
-print('streamflows')
+#import synthetic_temp_wind_v2
+#synthetic_temp_wind_v2.synthetic(stoch_years)
+#print('synth weather')
+#
+## Generate synthetic streamflow records 
+#import synthetic_streamflow_v2
+#print('streamflows')
 
 #############################################################################
 #
@@ -43,7 +43,7 @@ print('streamflows')
 # Now specify a smaller subset of stochastic data to run (must be <= stoch years)
 # FOR FORECAST MODE, THIS NEEDS TO BE > 1
 
-sim_years = 2
+sim_years = 12
 
 # Run ORCA to get California storage dam releases
 import main
