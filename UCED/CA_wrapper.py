@@ -58,16 +58,7 @@ def sim(days):
  
     #max here can be (1,358)
     for day in range(1,days+1):
-        
-        pgeH_first = []
-        sceH_first = []
-        p66_first = []
-        p46_first = []
-        p61_first = []
-        p42_first = []
-        p24_first = []
-        p45_first = []
-
+    
         #load time series data
         for z in instance.zones:
 
@@ -307,6 +298,15 @@ def sim(days):
                     
         results = opt.solve(instance2)
         instance2.solutions.load_from(results)
+        
+        pgeH_first = []
+        sceH_first = []
+        p66_first = []
+        p46_first = []
+        p61_first = []
+        p42_first = []
+        p24_first = []
+        p45_first = []
 
         print ("Duals")
 

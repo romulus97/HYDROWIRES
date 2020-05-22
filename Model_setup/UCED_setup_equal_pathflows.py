@@ -1,0 +1,90 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Oct  3 21:29:55 2018
+
+@author: jkern
+"""
+
+############################################################################
+#                               DATA SETUP
+
+# This file selects a single year from the synthetic record and organizes the
+# data in a form that is accessible to the unit commitment/economic dispatch
+# (UC/ED) simulation model. This script can be interfaced with a data mining
+# scheme for selecting specific years to run.
+############################################################################
+
+############################################################################
+#                             HYDROPOWER SETUP
+#
+# This section uses historical hydropower production data and simulated hydropower
+# to creat time series of minimum hydropower production and ramp rates.
+
+# First script
+# only needs to be run 1 time, and the ramp rates should be added manually to the
+# generators data file.
+
+#import min_hydro_ramping
+############################################################################
+
+############################################################################
+#                         SYNTHETIC YEAR SELECTION
+
+# Default is that a random year from the synthetic record is selected to be run
+# through the UC/ED model.
+
+import pandas as pd
+import numpy as np
+
+#zero or one
+perfect_foresight = 0
+
+df_sim = pd.read_csv('../Stochastic_engine/CA_hydropower/PGE_valley_hydro.csv')
+sim_years = int(len(df_sim)/365) - 1
+
+for i in range(0,sim_years):
+    
+    year=int(i)
+
+    ############################################################################
+    #                          CA TIME SERIES SETUP
+
+    # Calculates "minimum flows" for zonal hydropower production and imports,
+    # dispatchable imports and hydropower, and hourly export demand
+
+    import CA_exchange_time_series_equal_pathflows
+    CA_exchange_time_series_equal_pathflows.exchange(year)
+
+    ############################################################################
+    #                          PNW TIME SERIES SETUP
+
+    # Note: In future versions this can be set up differently to coordinate hourly
+    # Export time series (PNW-->CAISO) with records of dispatched imports from the
+    # CAISO market model.
+
+
+    import PNW_exchange_time_series_equal_pathflows
+    PNW_exchange_time_series_equal_pathflows.exchange(year)
+
+
+#    ############################################################################
+    #                          UC/ED Data File Setup
+
+    # CALFIFORNIA
+    # hist = 1 if looking at historical nuclear power production; facilitates use of
+    # monthly nuclear power generation data from EIA. Note that if hist = 0
+    # the model assumes that nuclear power plants in California have been retired.
+    hist = 0
+    hist_year = 2011
+    
+    operating_horizon = 7 #specify in days
+
+    import CA_data_setup_equal_pathflows
+    CA_data_setup_equal_pathflows.setup(year,hist,hist_year,operating_horizon,perfect_foresight)
+
+
+    # PACIFIC NORTHWEST
+    import PNW_data_setup_equal_pathflows
+    PNW_data_setup_equal_pathflows.setup(year,operating_horizon,perfect_foresight)
+
+    print(i)

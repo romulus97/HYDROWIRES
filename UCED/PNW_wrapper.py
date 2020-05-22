@@ -39,7 +39,6 @@ def sim(days):
     instance2.dual = pyo.Suffix(direction=pyo.Suffix.IMPORT)
     opt = SolverFactory("cplex")
        
-    
     H = instance.HorizonHours
     D = int(H/24)
     K=range(1,H+1)   
@@ -73,13 +72,6 @@ def sim(days):
     #max here can be (1,365)
     for day in range(1,days+1):
         
-        pnwH_first = []
-        p66_first = []
-        p65_first = []
-        p3_first = []
-        p8_first = []
-        p14_first = []
-        
          #load time series data
         for z in instance.zones:
             
@@ -97,79 +89,39 @@ def sim(days):
                 instance2.HorizonWind[z,i] = instance2.SimWind[z,(day-1)*24+i]
                 instance2.HorizonSolar[z,i] = instance2.SimSolar[z,(day-1)*24+i]
                 instance2.HorizonMustRun[z,i] = instance2.SimMustRun[z,(day-1)*24+i]
+                
+        for d in range(1,D+1):
+            instance.HorizonPath3_imports[d] = instance.SimPath3_imports[day-1+d]
+            instance.HorizonPath8_imports[d] = instance.SimPath8_imports[day-1+d]
+            instance.HorizonPath14_imports[d] = instance.SimPath14_imports[day-1+d]
+            instance.HorizonPath65_imports[d] = instance.SimPath65_imports[day-1+d]
+            instance.HorizonPath66_imports[d] = instance.SimPath66_imports[day-1+d]
         
         pnw = 0
-        p66 = 0
-        p65 = 0
-        p3 = 0
-        p8 = 0
-        p14 = 0
         
         pnw_deficit = 0
-        p66_deficit = 0
-        p65_deficit = 0
-        p3_deficit = 0
-        p8_deficit = 0
-        p14_deficit = 0      
         
         for d in range(1,D+1):
             
             fd = forecast_days[d-1]
             
-            pnw = pnw + instance.SimPNW_hydro[fd,day]
-            p66 = p66 + instance.SimPath66_imports[fd,day]
-            p65 = p65 + instance.SimPath65_imports[fd,day]
-            p3 = p3 + instance.SimPath3_imports[fd,day]
-            p8 = p8 + instance.SimPath8_imports[fd,day]
-            p14 = p14 + instance.SimPath14_imports[fd,day]
-            
+            pnw = pnw + instance.SimPNW_hydro[fd,day]            
         
         if day < 2:
             
-            instance.HorizonPNW_hydro = pnw
-            instance.HorizonPath66_imports = p66
-            instance.HorizonPath65_imports = p65
-            instance.HorizonPath3_imports = p3
-            instance.HorizonPath8_imports = p8
-            instance.HorizonPath14_imports = p14
-    
+            instance.HorizonPNW_hydro = pnw    
             instance2.HorizonPNW_hydro = pnw
-            instance2.HorizonPath66_imports = p66
-            instance2.HorizonPath65_imports = p65
-            instance2.HorizonPath3_imports = p3
-            instance2.HorizonPath8_imports = p8
-            instance2.HorizonPath14_imports = p14        
         
-        else:
+        else: #WHAT IS GOING ON HERE??
             
             pnw_deficit = pnw_deficit - np.min((0,pnw- np.sum(pnwH_first) + instance.SimPNW_hydro['fd1',day-1]))
-            p66_deficit = p66_deficit - np.min((0,p66- np.sum(p66_first) + instance.SimPath66_imports['fd1',day-1]))
-            p65_deficit = p65_deficit - np.min((0,p65- np.sum(p65_first) + instance.SimPath65_imports['fd1',day-1]))
-            p3_deficit = p3_deficit - np.min((0,p3- np.sum(p3_first) + instance.SimPath3_imports['fd1',day-1]))
-            p8_deficit = p8_deficit - np.min((0,p8- np.sum(p8_first) + instance.SimPath8_imports['fd1',day-1]))
-            p14_deficit = p14_deficit - np.min((0,p14- np.sum(p14_first) + instance.SimPath14_imports['fd1',day-1]))
         
             instance.HorizonPNW_hydro = np.max((0,pnw - np.sum(pnwH_first) + instance.SimPNW_hydro['fd1',day-1] - pnw_deficit))   
-            instance.HorizonPath66_imports = np.max((0,p66 - np.sum(p66_first) + instance.SimPath66_imports['fd1',day-1] - p66_deficit))
-            instance.HorizonPath65_imports = np.max((0,p65 - np.sum(p65_first) + instance.SimPath65_imports['fd1',day-1] - p65_deficit))
-            instance.HorizonPath3_imports = np.max((0,p3 - np.sum(p3_first) + instance.SimPath3_imports['fd1',day-1] - p3_deficit))
-            instance.HorizonPath8_imports = np.max((0,p8 - np.sum(p8_first) + instance.SimPath8_imports['fd1',day-1] - p8_deficit))
-            instance.HorizonPath14_imports = np.max((0,p14 - np.sum(p14_first) + instance.SimPath14_imports['fd1',day-1] - p14_deficit))
         
-            instance2.HorizonPNW_hydro = np.max((0,pnw - np.sum(pnwH_first) + instance2.SimPNW_hydro['fd1',day-1] - pnw_deficit))   
-            instance2.HorizonPath66_imports = np.max((0,p66 - np.sum(p66_first) + instance2.SimPath66_imports['fd1',day-1] - p66_deficit))
-            instance2.HorizonPath65_imports = np.max((0,p65 - np.sum(p65_first) + instance2.SimPath65_imports['fd1',day-1] - p65_deficit))
-            instance2.HorizonPath3_imports = np.max((0,p3 - np.sum(p3_first) + instance2.SimPath3_imports['fd1',day-1] - p3_deficit))
-            instance2.HorizonPath8_imports = np.max((0,p8 - np.sum(p8_first) + instance2.SimPath8_imports['fd1',day-1] - p8_deficit))
-            instance2.HorizonPath14_imports = np.max((0,p14 - np.sum(p14_first) + instance2.SimPath14_imports['fd1',day-1] - p14_deficit))
-    
+            instance2.HorizonPNW_hydro = np.max((0,pnw - np.sum(pnwH_first) + instance2.SimPNW_hydro['fd1',day-1] - pnw_deficit))       
+     
             pnw_deficit = np.max((0,pnw_deficit - pnw - np.sum(pnwH_first) + instance.SimPNW_hydro['fd1',day-1]))
-            p66_deficit = np.max((0,p66_deficit - p66 - np.sum(p66_first) + instance.SimPath66_imports['fd1',day-1]))
-            p65_deficit = np.max((0,p65_deficit - p65 - np.sum(p65_first) + instance.SimPath65_imports['fd1',day-1]))
-            p3_deficit = np.max((0,p3_deficit - p3 - np.sum(p3_first) + instance.SimPath3_imports['fd1',day-1]))
-            p8_deficit = np.max((0,p8_deficit - p8 - np.sum(p8_first) + instance.SimPath8_imports['fd1',day-1]))
-            p14_deficit = np.max((0,p14_deficit - p14 - np.sum(p14_first) + instance.SimPath14_imports['fd1',day-1]))
-       
+          
         for i in K:
             instance.HorizonReserves[i] = instance.SimReserves[(day-1)*24+i] 
             instance2.HorizonReserves[i] = instance2.SimReserves[(day-1)*24+i] 
@@ -180,60 +132,47 @@ def sim(days):
             
             for j in range(1,25):
                 
-                instance.HorizonPath3_exports[(d-1)*24+j] = instance.SimPath3_exports[fd,(day-1)*24+j]
-                instance.HorizonPath8_exports[(d-1)*24+j] = instance.SimPath8_exports[fd,(day-1)*24+j]
-                instance.HorizonPath14_exports[(d-1)*24+j] = instance.SimPath14_exports[fd,(day-1)*24+j]
-                instance.HorizonPath66_exports[(d-1)*24+j] = instance.SimPath66_exports[fd,(day-1)*24+j]    
-                instance.HorizonPath65_exports[(d-1)*24+j] = instance.SimPath65_exports[fd,(day-1)*24+j]    
                 instance.HorizonPNW_hydro_minflow[(d-1)*24+j] = instance.SimPNW_hydro_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath3_minflow[(d-1)*24+j] = instance.SimPath3_imports_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath8_minflow[(d-1)*24+j] = instance.SimPath8_imports_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath14_minflow[(d-1)*24+j] = instance.SimPath14_imports_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath65_minflow[(d-1)*24+j] = instance.SimPath65_imports_minflow[fd,(day-1)*24+j]
-                instance.HorizonPath66_minflow[(d-1)*24+j] = instance.SimPath66_imports_minflow[fd,(day-1)*24+j]
-    
-                instance2.HorizonPath3_exports[(d-1)*24+j] = instance2.SimPath3_exports[fd,(day-1)*24+j]
-                instance2.HorizonPath8_exports[(d-1)*24+j] = instance2.SimPath8_exports[fd,(day-1)*24+j]
-                instance2.HorizonPath14_exports[(d-1)*24+j] = instance2.SimPath14_exports[fd,(day-1)*24+j]
-                instance2.HorizonPath66_exports[(d-1)*24+j] = instance2.SimPath66_exports[fd,(day-1)*24+j]    
-                instance2.HorizonPath65_exports[(d-1)*24+j] = instance2.SimPath65_exports[fd,(day-1)*24+j]    
                 instance2.HorizonPNW_hydro_minflow[(d-1)*24+j] = instance2.SimPNW_hydro_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath3_minflow[(d-1)*24+j] = instance2.SimPath3_imports_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath8_minflow[(d-1)*24+j] = instance2.SimPath8_imports_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath14_minflow[(d-1)*24+j] = instance2.SimPath14_imports_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath65_minflow[(d-1)*24+j] = instance2.SimPath65_imports_minflow[fd,(day-1)*24+j]
-                instance2.HorizonPath66_minflow[(d-1)*24+j] = instance2.SimPath66_imports_minflow[fd,(day-1)*24+j]
-    #            
+     #            
 #        PNW_result = opt.solve(instance,tee=True,symbolic_solver_labels=True)
         PNW_result = opt.solve(instance)
         instance.solutions.load_from(PNW_result) 
+            
+        coal = 0
+        nuclear = 0
+        gas = 0
+        oil = 0
+        psh = 0
+        slack = 0
+        f_gas = 0
+        f_oil = 0
+        f_coal = 0
+        st = 0
         
-        coal1 = sum(instance.mwh_1[j,i]*(instance.seg1[j]*2 + instance.var_om[j]) for i in range(1,25) for j in instance.Coal)
-        coal2 = sum(instance.mwh_2[j,i]*(instance.seg2[j]*2 + instance.var_om[j]) for i in range(1,25) for j in instance.Coal)
-        coal3 = sum(instance.mwh_3[j,i]*(instance.seg3[j]*2 + instance.var_om[j]) for i in range(1,25) for j in instance.Coal)
-        nuc1 = sum(instance.mwh_1[j,i]*(instance.seg1[j]*1 + instance.var_om[j]) for i in range(1,25) for j in instance.Nuclear)
-        nuc2 = sum(instance.mwh_2[j,i]*(instance.seg2[j]*1 + instance.var_om[j]) for i in range(1,25) for j in instance.Nuclear)
-        nuc3 = sum(instance.mwh_3[j,i]*(instance.seg3[j]*1 + instance.var_om[j]) for i in range(1,25) for j in instance.Nuclear)
-        gas1_5 = sum(instance.mwh_1[j,i]*(instance.seg1[j]*instance.GasPrice['PNW'] + instance.var_om[j]) for i in range(1,25) for j in instance.Gas)
-        gas2_5 = sum(instance.mwh_2[j,i]*(instance.seg2[j]*instance.GasPrice['PNW'] + instance.var_om[j]) for i in range(1,25) for j in instance.Gas)
-        gas3_5 = sum(instance.mwh_3[j,i]*(instance.seg3[j]*instance.GasPrice['PNW'] + instance.var_om[j]) for i in range(1,25) for j in instance.Gas)
-        oil1 = sum(instance.mwh_1[j,i]*(instance.seg1[j]*20 + instance.var_om[j]) for i in range(1,25) for j in instance.Oil)
-        oil2 = sum(instance.mwh_2[j,i]*(instance.seg2[j]*20 + instance.var_om[j]) for i in range(1,25) for j in instance.Oil)
-        oil3 = sum(instance.mwh_3[j,i]*(instance.seg3[j]*20 + instance.var_om[j]) for i in range(1,25) for j in instance.Oil)
-        psh1 = sum(instance.mwh_1[j,i]*10 for i in range(1,25) for j in instance.PSH)
-        psh2 = sum(instance.mwh_2[j,i]*10 for i in range(1,25) for j in instance.PSH)
-        psh3 = sum(instance.mwh_3[j,i]*10 for i in range(1,25) for j in instance.PSH)
-        slack1 = sum(instance.mwh_1[j,i]*instance.seg1[j]*10000 for i in range(1,25) for j in instance.Slack)
-        slack2 = sum(instance.mwh_2[j,i]*instance.seg2[j]*10000 for i in range(1,25) for j in instance.Slack)
-        slack3 = sum(instance.mwh_3[j,i]*instance.seg3[j]*10000 for i in range(1,25) for j in instance.Slack)
-        fixed_coal = sum(instance.no_load[j]*instance.on[j,i]*2 for i in range(1,25) for j in instance.Coal)
-        fixed_gas5 = sum(instance.no_load[j]*instance.on[j,i]*instance.GasPrice['PNW'] for i in range(1,25) for j in instance.Gas)
-        fixed_oil = sum(instance.no_load[j]*instance.on[j,i]*20 for i in range(1,25) for j in instance.Oil)
-        fixed_slack = sum(instance.no_load[j]*instance.on[j,i]*10000 for i in range(1,25) for j in instance.Slack)
-        starts = sum(instance.st_cost[j]*instance.switch[j,i] for i in range(1,25) for j in instance.Generators)
-        reserves = sum(instance.nrsv[j,i] for i in range(1,25) for j in instance.Reserves) + sum(instance.nrsv[j,i]*10000 for i in range(1,25) for j in instance.Slack)
-    
-        S = fixed_slack + fixed_oil + fixed_gas5 + fixed_coal + coal1 + coal2 + coal3 + nuc1 + nuc2 + nuc3 + gas1_5 + gas2_5 + gas3_5 + oil1 + oil2 + oil3 + psh1 + psh2 + psh3 + slack1 + slack2 + slack3 + starts + reserves
+        for i in range(1,25):
+            for j in instance.Coal:
+                coal = coal + instance.mwh_1[j,i].value*(instance.seg1[j]*2 + instance.var_om[j]) + instance.mwh_2[j,i].value*(instance.seg2[j]*2 + instance.var_om[j]) + instance.mwh_3[j,i].value*(instance.seg3[j]*2 + instance.var_om[j])  
+            for j in instance.Gas:
+                gas = gas + instance.mwh_1[j,i].value*(instance.seg1[j]*instance.GasPrice['PNW'].value + instance.var_om[j]) + instance.mwh_2[j,i].value*(instance.seg2[j]*instance.GasPrice['PNW'].value + instance.var_om[j]) + instance.mwh_3[j,i].value*(instance.seg3[j]*instance.GasPrice['PNW'].value + instance.var_om[j])  
+            for j in instance.Nuclear:
+                nuclear = nuclear + instance.mwh_1[j,i].value*(instance.seg1[j]*1 + instance.var_om[j]) + instance.mwh_2[j,i].value*(instance.seg2[j]*1 + instance.var_om[j]) + instance.mwh_3[j,i].value*(instance.seg3[j]*1 + instance.var_om[j])  
+            for j in instance.Oil:
+                oil = oil + instance.mwh_1[j,i].value*(instance.seg1[j]*20 + instance.var_om[j]) + instance.mwh_2[j,i].value*(instance.seg2[j]*20 + instance.var_om[j]) + instance.mwh_3[j,i].value*(instance.seg3[j]*20 + instance.var_om[j])  
+            for j in instance.PSH:
+                psh = psh + instance.mwh_1[j,i].value*(instance.seg1[j]*10 + instance.var_om[j]) + instance.mwh_2[j,i].value*(instance.seg2[j]*10 + instance.var_om[j]) + instance.mwh_3[j,i].value*(instance.seg3[j]*10 + instance.var_om[j])  
+            for j in instance.Slack:
+                slack = slack + instance.mwh_1[j,i].value*(instance.seg1[j]*2000 + instance.var_om[j]) + instance.mwh_2[j,i].value*(instance.seg2[j]*2000 + instance.var_om[j]) + instance.mwh_3[j,i].value*(instance.seg3[j]*2000 + instance.var_om[j])  
+            for j in instance.Gas:
+                f_gas = f_gas + instance.no_load[j]*instance.on[j,i].value*2
+            for j in instance.Coal:
+                f_coal = f_coal + instance.no_load[j]*instance.on[j,i].value*2
+            for j in instance.Oil:
+                f_oil = f_oil + instance.no_load[j]*instance.on[j,i].value*2
+            for j in instance.Generators:
+                st = st + instance.st_cost[j]*instance.switch[j,i].value
+
+        S = gas + oil + coal + slack + psh + nuclear + st + f_gas + f_oil + f_coal 
         System_cost.append(S)
         
         for j in instance.Generators:
@@ -254,9 +193,17 @@ def sim(days):
                     instance2.switch[j,t] = 0
                     instance2.switch[j,t].fixed = True
                     
-#        results = opt.solve(instance2,tee=True,symbolic_solver_labels=True)
+#        results = opt.solve(instance2)
         results = opt.solve(instance2,tee=True,symbolic_solver_labels=True)
         instance2.solutions.load_from(results)
+        
+        pnwH_first = []
+        p66_first = []
+        p65_first = []
+        p3_first = []
+        p8_first = []
+        p14_first = []
+        
         
         
         print ("Duals")

@@ -9,8 +9,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def exchange(year):
-
-    year=0
     
     df_Path66 = pd.read_csv('../Stochastic_engine/Synthetic_demand_pathflows/syn_Path66.csv',header=0,index_col=0)
     df_Path3 = pd.read_csv('../Stochastic_engine/Synthetic_demand_pathflows/syn_Path3.csv',header=0,index_col=0)

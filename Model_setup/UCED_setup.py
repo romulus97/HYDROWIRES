@@ -36,7 +36,8 @@ Created on Wed Oct  3 21:29:55 2018
 import pandas as pd
 import numpy as np
 
-perfect_foresight = 1
+#zero or one
+perfect_foresight = 0
 
 df_sim = pd.read_csv('../Stochastic_engine/CA_hydropower/PGE_valley_hydro.csv')
 sim_years = int(len(df_sim)/365) - 1

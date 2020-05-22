@@ -13,27 +13,6 @@ Created on Wed Sep 19 09:59:48 2018
 # that stochastic input generation can occur as many times as desired.
 import time
 starttime = time.time()
-#import calculate_cov
-############################################################################
-
-############################################################################
-# STOCHASTIC WEATHER AND STREAMFLOW GENERATION
-
-# Specify a number of synthetic weather years to be simulated. Then
-# edit the /cord/data/input/base_inflows.json file, specifying the start and end 
-# dates of the forecast_exp scenario flow files. Start date must be 1/1/1901.
-# End dates must be stoch_years + 3 after start date. 
-
-stoch_years=20
-
-# Generate synthetic weather (wind speed and temperature) records. 
-#import synthetic_temp_wind_v2
-#synthetic_temp_wind_v2.synthetic(stoch_years)
-#print('synth weather')
-#
-## Generate synthetic streamflow records 
-#import synthetic_streamflow_v2
-#print('streamflows')
 
 #############################################################################
 #

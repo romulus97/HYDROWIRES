@@ -16,7 +16,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 def simulate(sim_years):
-    
+
     def ismember(A,B):
         x = np.in1d(A,B)
         return 1 if x==True else 0
@@ -373,7 +373,7 @@ def simulate(sim_years):
     p11=np.arange(106,121)  #Apr 16 - Apr 30
     p12=np.arange(121,152) #May
     p13=np.arange(152,182) #Jun
-    p14=np.arange(191,213) #Jul
+    p14=np.arange(182,213) #Jul
     
     ###############
     #Output buckets
@@ -434,6 +434,7 @@ def simulate(sim_years):
     MCD_head = np.zeros((sim_days,f_horizon))
     MCN_head = np.zeros((sim_days,f_horizon))
     LMN_head = np.zeros((sim_days,f_horizon))
+    
     ###########
     GCL_VRC = np.zeros((365,1))
     MCD_Julian = np.zeros((sim_days,f_horizon))
@@ -462,11 +463,10 @@ def simulate(sim_years):
     ###########
     
     for i in range(0,sim_days):
-    #
-    #for i in range(0,sim_days):
         
-        for fd in range(0,f_horizon):
+    #    for fd in range(0,f_horizon):
             
+        for fd in range(0,f_horizon):    
             #day, relative to forecast
             s = i+fd
     
@@ -484,7 +484,7 @@ def simulate(sim_years):
         
             ICF = ICFs[floodyear-1]
             fillstart = max(ICF - 20,0)
-        
+                
             ##############################
             #############################
             #Add new fillstart day
@@ -496,7 +496,7 @@ def simulate(sim_years):
             ############################
             #Is it spring (January 1 - June 30) or fall (September 1 - December 31)
             spring = julian<182
-        
+            
             #Calculate "forecasted" unregulated flows at The Dalles (April -
             #August)
             if spring == True:
@@ -557,6 +557,7 @@ def simulate(sim_years):
             s_45 = storage_update(i,fd,44,storage,s_45)
             s_46 = storage_update(i,fd,45,storage,s_46)
             s_47 = storage_update(i,fd,46,storage,s_47)   
+            
             ########################
             #SPOKANE RIVER PROJECTS#
             #Post Falls, Upper Falls, Monroe St.,Nine Mile, Long Lake, and Little
@@ -631,7 +632,6 @@ def simulate(sim_years):
             #Mica - storage reservor with flood control rule curve
             ######################################################
                       
-            #MCD_sfore = np.zeros((sim_days,1))
             #Are we in evacuation or refill?
             #If ICF exists, then fill start date is ICF - 20.
             if fillstart>0:
@@ -657,7 +657,7 @@ def simulate(sim_years):
             elif i > 0 and fd<1:
                 MCD_sfore[i,fd]=min((local.iloc[i,0]-VPDR_MCD)*.001987+ storage[i-1,0,fd],s_max[0])      
             else:
-                MCD_sfore[i,fd]=min((local.iloc[i,0]-VPDR_MCD)*.001987+ storage[i,0,fd]-1,s_max[0])
+                MCD_sfore[i,fd]=min((local.iloc[i,0]-VPDR_MCD)*.001987+ storage[i,0,fd-1],s_max[0])
            
             MCD_VRC= MCD_sfore[i,fd] #this is in kAF
         
@@ -706,7 +706,7 @@ def simulate(sim_years):
                 elif MCD_for > 16000 and MCD_for <= 18000:
                     MCD_fctarget = MCD_fc.iloc[julian-1,9] + ((MCD_for - 16000)/(18000-16000))*(MCD_fc.iloc[julian-1,10] - MCD_fc.iloc[julian-1,9])
                 elif MCD_for > 18000:
-                    MCD_fctarget = MCD_fc.iloc[julian-1,11]
+                    MCD_fctarget = MCD_fc.iloc[julian-1,10]
         
         
         
@@ -787,7 +787,7 @@ def simulate(sim_years):
                         MCD_dg = 25000*.001987
                      elif s_2<=3480*3 and s_2>=2140*3:
                         MCD_dg = 27000*.001987
-                     elif s_2<1450*3:
+                     elif s_2<2140*3:
                         MCD_dg = 32000*.001987
         
                 elif ismember(julian,p4)==1:
@@ -1162,7 +1162,7 @@ def simulate(sim_years):
                     if s_2>2140*3:
                         MCD_dg =10000*.001987
                     elif s_2<=2140*3 and s_2>=1450*3:
-                        MCD_dg = 8000.001987
+                        MCD_dg = 8000*.001987
                     elif s_2<=1450*3 and s_2>=1140*3:
                         MCD_dg = 10000*.001987
                     elif s_2<1140*3:
@@ -1214,6 +1214,11 @@ def simulate(sim_years):
                 storage[i,0,fd] = s_1
         
             generation[i,0,fd] = ((1000*240.1824*powerflow[i,0,fd]*14.27641*9.81*.875)/1000000)*24
+            
+    #        
+    #        print(str(fd) + ' julian: ' + str(julian) + ' floodyear: ' + str(floodyear) + ' ICF: ' + str(ICF) + ' spring: ' + str(spring))
+    #        print('TDA_for: ' + str(TDA_for) + ' evac: ' + str(evac) + ' MCD_for: ' + str(MCD_for) + ' MCD fctarget: ' + str(MCD_fctarget))
+    #        print('s_2: ' + str(s_2) + ' overflow: ' + str(overflow) + ' s_1: ' + str(s_1))
         
             ######################################
             #Revelstoke Dam - run-of-river project
@@ -1282,6 +1287,8 @@ def simulate(sim_years):
                 ARD_min=5000
             else:
                 ARD_min=10001
+                
+                #ARD_min jumps from 5000 to 10000
         
         
              #Calculate PDR
@@ -1292,6 +1299,8 @@ def simulate(sim_years):
               #Above is liner extrapolation from data
             else:
                 VPDR_ARD=5000
+                
+                #VPDR_ARD jumps from 42000 to 53000
         
         
           #Calculate VRC
@@ -1422,7 +1431,7 @@ def simulate(sim_years):
             #Duncan - storage reservoir with flood control rule curve
             ######################################################
             #Note: Duncan has no hydroelectric generation capability.
-        
+            
             #Are we in evacuation or refill?
             #If ICF exists, then fill start date is ICF - 20.
             if fillstart>0:
@@ -1830,7 +1839,8 @@ def simulate(sim_years):
             ######################################################
             #Hungry Horse - storage reservoir with flood control rule curve
             ######################################################
-        
+            
+     
             #Are we in evacuation or refill?
             #If ICF exists, then fill start date is ICF - 20.
             if fillstart>0:
@@ -1839,9 +1849,7 @@ def simulate(sim_years):
             else:
                 evac = julian<120 or julian>304
         
-        #I changed this from 180 to 120 and 273 to 304
-        
-             #Is it spring (January 1 - June 30) or fall (September 1 - December 31)
+            #Is it spring (January 1 - June 30) or fall (September 1 - December 31)
             spring = julian<182
         
             #Calculate "forecasted" inflows to Hungry Horse (May - August)
@@ -1874,10 +1882,13 @@ def simulate(sim_years):
             if i==0 and fd<1:
             #DNC's storage forecaste
                 HHO_sfore[i,fd]=min((local.iloc[i,5]-VPDR_HHO)*.001987+s_6,s_max[5])
+            elif i == 0 and fd >0:
+                HHO_sfore[i,fd]=min((local.iloc[i,5]-VPDR_HHO)*.001987+ storage[i,5,fd-1],s_max[5])  
             elif i>0 and fd<1:
-                HHO_sfore[i,fd]=min((local.iloc[i,5]-VPDR_HHO)*.001987+ storage[i-1,5,fd],s_max[5])
+                HHO_sfore[i,fd]=min((local.iloc[i,5]-VPDR_HHO)*.001987+ storage[i-1,5,fd],s_max[5])                 
             else:
                 HHO_sfore[i,fd]=min((local.iloc[i,5]-VPDR_HHO)*.001987+ storage[i,5,fd-1],s_max[5])
+                            
             
             HHO_VRC= HHO_sfore[i,fd] #this is in kAF
         
@@ -1911,8 +1922,8 @@ def simulate(sim_years):
                 HHO_ORC[julian-1]=HHO_fctarget
         
         ############################################################################
-                #This section is the same as LIB's this repilication is to make
-                #sure that nothing goes wrong
+            #This section is the same as LIB's this repilication is to make
+            #sure that nothing goes wrong
         
             if ICF_D<350:
                  ICF_D=350
@@ -1937,6 +1948,7 @@ def simulate(sim_years):
                   elif TDA_for_LIB_B >145000 and TDA_for_LIB_B <=200000:
                       FCD_LIB = 85+ (0.001818*(TDA_for_LIB_B-145000))
                       #FCD is flood control duration
+    
             elif ICF_D >=450: #Use curve 3
                   if TDA_for_LIB_B>= 80000 and TDA_for_LIB_B <= 100000:
                       FCD_LIB=0.0025*(TDA_for_LIB_B-80000)
@@ -1968,7 +1980,8 @@ def simulate(sim_years):
             #Calculate daily reservoir discharge and end-of-day storage. Have to
             #convert project inflows ("local") to kAF. Note: there is a minimum flow release of 3500cfs associated with this dam.
                 HHO_dg = max(max(0,3500-local.iloc[i,6])*.001987, s_6 + local.iloc[i,5]*.001987 - HHO_ORC[julian-1])
-                #If reservoir storage is low
+      
+              #If reservoir storage is low
                 if HHO_dg>s_6 + local.iloc[i,5]*.001987:
                     HHO_dg=s_6 + local.iloc[i,5]*.001987
         
@@ -3120,12 +3133,12 @@ def simulate(sim_years):
             #convert project inflows ("local") to kAF.
             #Note: There is a 1-day travel delay between Hell's Canyon and Dworshak
             #and Lower Granite.
-            if i>0 and fd<0:
+            if i>0 and fd<1:
                 LWG_dg = max(0,local.iloc[i,35]*.001987 + discharge[i-1,12,fd]*.001987 + discharge[i-1,43,fd]*.001987 + ORF5H[i]* .001987 + SPD5L[i]*.001987 + ANA5L[i]*.001987 + LIM5L[i]*.001987 + WHB5H[i]*.001987)
                 s_36 = s_36 + local.iloc[i,35]*.001987 + discharge[i-1,12,fd]*.001987 + discharge[i-1,43,fd]*.001987+ ORF5H[i]* .001987 + SPD5L[i]*.001987 + ANA5L[i]*.001987 + LIM5L[i]*.001987 + WHB5H[i]*.001987 - LWG_dg
             elif i>0 and fd>0:
                 LWG_dg = max(0,local.iloc[i,35]*.001987 + discharge[i,12,fd-1]*.001987 + discharge[i,43,fd-1]*.001987 + ORF5H[i]* .001987 + SPD5L[i]*.001987 + ANA5L[i]*.001987 + LIM5L[i]*.001987 + WHB5H[i]*.001987)
-                s_36 = s_36 + local.iloc[i,35]*.001987 + discharge[i,12,fd-1]*.001987 + discharge[i,43,fd-1]*.001987+ ORF5H[i]* .001987 + SPD5L[i]*.001987 + ANA5L[i]*.001987 + LIM5L[i]*.001987 + WHB5H[i]*.001987 - LWG_dg
+                s_36 = s_36 + local.iloc[i,35]*.001987 + discharge[i,12,fd-1]*.001987 + discharge[i,43,fd-1]*.001987+ ORF5H[i]* .001987 + SPD5L[i]*.001987 + ANA5L[i]*.001987 + LIM5L[i]*.001987 + WHB5H[i]*.001987 - LWG_dg             
             elif i<1 and fd<1:
                 LWG_dg = max(0,local.iloc[i,35]*.001987 + discharge[i,12,fd]*.001987 + discharge[i,43,fd]*.001987+ ORF5H[i]* .001987 + SPD5L[i]*.001987 + ANA5L[i]*.001987 + LIM5L[i]*.001987 + WHB5H[i]*.001987)
                 s_36 = s_36 + local.iloc[i,35]*.001987 + discharge[i,12,fd]*.001987 + discharge[i,43,fd]*.001987 + ORF5H[i]*.001987 + SPD5L[i]*.001987 + ANA5L[i]*.001987 + LIM5L[i]*.001987 + WHB5H[i]*.001987 - LWG_dg
@@ -3251,11 +3264,11 @@ def simulate(sim_years):
             #Calculate daily reservoir discharge and end-of-day storage. Have to
             #convert project inflows ("local") to kAF.
             PLT_dg = max(0,local.iloc[i,44]*.001987 + RBU_dg)
-            s_45 = s_45 + local.iloc[i,44]*.001987 - PLT_dg
+            s_44 = s_44 + local.iloc[i,44]*.001987 + RBU_dg - PLT_dg
             powerflow[i,44,fd] = min(PLT_dg,f_max[44])
             spill[i,44,fd] = max(0,PLT_dg - f_max[44])
             discharge[i,44,fd] = PLT_dg*(1/.001987)  #Convert back to cfs
-            storage[i,44,fd] = s_45
+            storage[i,44,fd] = s_44
             generation[i,44,fd] = ((1000*62.1792*powerflow[i,44,fd]*14.27641*9.81*.87)/1000000)*24
         
             #########################
@@ -3357,29 +3370,137 @@ def simulate(sim_years):
             Spillheads[i,10,fd]=BNN_head
     
     
-    ##
+    
     ##############
     ###Data Output
     ##############
-    ##np.savetxt('PNW_hydro/FCRPS/discharge.csv',discharge,delimiter=',')
+    #np.savetxt('PNW_hydro/FCRPS/discharge.csv',discharge,delimiter=',')
     ##np.savetxt('PNW_hydro/FCRPS/storage.csv',storage,delimiter=',')
     ##np.savetxt('PNW_hydro/FCRPS/powerflow.csv',powerflow,delimiter=',')
     ##np.savetxt('PNW_hydro/FCRPS/spill.csv',spill,delimiter=',')
     ##np.savetxt('PNW_hydro/FCRPS/heads.csv',heads,delimiter=',')
-    ##
-    ##
+            
+            
+            
+    # verification script
+    
+    #for i in range(0,47):
+    #    project = i
+    #    sample = local
+    #    pf = []
+    #    per = []
+    #    track = []
+    #    for i in range(0,len(discharge)-7):
+    #    #    a = np.sum(sample[i:i+7,0])
+    #    #    b = np.sum(sample[i,:])
+    #        a = np.sum(sample.iloc[i:i+7,project])
+    #        b = np.sum(np.ones((7,1))*sample.iloc[i,project])
+    #        pf = np.append(pf,a)
+    #        per = np.append(per,b)
+    #    
+    #    difference = pf - per
+    #    for i in range(0,len(pf)):
+    #        if i < 1:
+    #            track.append(difference[i])
+    #        else:
+    #            track.append(difference[i] + track[i-1])
+    #       
+    #    plt.figure()
+    #    plt.plot(track)
+        #plt.plot(pf,'r')
+        #plt.plot(per,'b')
         
+            
     
     generation[0,:,:]=generation[2,:,:]
     generation[1,:,:]=generation[2,:,:]
     
     # bias correction
     generation = generation*0.94
-    ##
+    
+    # shift back to Jan 1 start date
+    generation=generation[122:len(generation)-243,:,:]
+    spill=spill[122:len(spill)-243,:,:]     
+    
+    
     total=np.sum((generation),axis=1)
+    
+    ## verification script
+    
+    #sample = powerflow[:,project,:]
+    
+    ##streamflow validation
+    #for i in range(0,55):
+    #    pf = []
+    #    per = []
+    #    track = []
+    ##    sample = total
+    #    sample = local.iloc[:,i]
+    #    for j in range(0,len(generation)-7):
+    #        a = np.sum(sample[j:j+7])
+    #        b = 7*sample[j]
+    #        pf = np.append(pf,a)
+    #        per = np.append(per,b)
+    #    
+    #    difference = pf - per
+    #    for j in range(0,len(pf)):
+    #        if j < 1:
+    #            track.append(difference[j])
+    #        else:
+    #            track.append(difference[j] + track[j-1])
+    #       
+    #    plt.figure()
+    #    plt.plot(track)
+    #    
+    #    plt.figure()
+    #    plt.plot(pf,'r')
+    #    plt.plot(per,'b')
+    
+    names = ['Brownlee','Oxbow','Hells Canyon','Grand Coulee','Chief Joseph','Dworshak','Lower Granite','Little Goose','Lower Monumental','Ice Harbor','McNary','John Day','Dalles','Bonneville','Albeni Falls','Libby','Hungry Horse']
+    nums = [11,34,43,9,28,12,35,36,37,38,39,40,41,42,7,2,5]
+    
+    #hydropower
+    for i in range(0,len(names)):
+        pf = []
+        per = []
+        track = []
+        #    sample = total
+        num = nums[i]
+        name = names[i]
+        sample = generation[:,num,:]
+        for j in range(0,len(generation)-7):
+            a = np.sum(sample[j:j+7,0])
+            b = np.sum(sample[j,:])
+            pf = np.append(pf,a)
+            per = np.append(per,b)
+        
+        difference = pf - per
+        for j in range(0,len(pf)):
+            if j < 1:
+                track.append(difference[j])
+            else:
+                track.append(difference[j] + track[j-1])
+           
+        plt.figure()
+        plt.plot(difference)
+        plt.title(name)
+        
+        plt.figure()
+        plt.plot(track)
+        plt.title(name)
+        
+        plt.figure()
+        plt.plot(pf,'r')
+        plt.plot(per,'b')
+        plt.title(name)
+        
+        pct = 100*track[-1]/sum(pf)
+        result = 'The error for ' + name + ' is ' + str(pct) + '%'
+        print(result)
+    
     ##
     #BPA owned dams
-    BPA_own = np.zeros((sim_days,22,f_horizon))
+    BPA_own = np.zeros((sim_days-365,22,f_horizon))
     BPA_own[:,0,:]=generation[:,9,:] #Grand Culee
     BPA_own[:,1,:]=generation[:,28,:] #Chief Joseph
     BPA_own[:,2,:]=generation[:,12,:] #Dworshak
@@ -3395,8 +3516,46 @@ def simulate(sim_years):
     BPA_own[:,12,:]=generation[:,2,:] #Libby
     BPA_own[:,13,:]=generation[:,5,:] #Hungry Horse
     
+    BPA_own_spill = np.zeros((sim_days-365,22,f_horizon))
+    BPA_own_spill[:,0,:]=spill[:,9,:] #Grand Culee
+    BPA_own_spill[:,1,:]=spill[:,28,:] #Chief Joseph
+    BPA_own_spill[:,2,:]=spill[:,12,:] #Dworshak
+    BPA_own_spill[:,3,:]=spill[:,35,:] #Lower Granite
+    BPA_own_spill[:,4,:]=spill[:,36,:] #Little Goose
+    BPA_own_spill[:,5,:]=spill[:,37,:] #Lower Monumental
+    BPA_own_spill[:,6,:]=spill[:,38,:] #Ice Harbor
+    BPA_own_spill[:,7,:]=spill[:,39,:] #McNary
+    BPA_own_spill[:,8,:]=spill[:,40,:] #John Day
+    BPA_own_spill[:,9,:]=spill[:,41,:] #Dalles
+    BPA_own_spill[:,10,:]=spill[:,42,:] #Bonneville
+    BPA_own_spill[:,11,:]=spill[:,7,:] #Albeni Falls
+    BPA_own_spill[:,12,:]=spill[:,2,:] #Libby
+    BPA_own_spill[:,13,:]=spill[:,5,:] #Hungry Horse
     
-    Unmodeled = np.zeros((sim_days,47,f_horizon))
+    names = ['Mica','Arrow','Libby','Duncan','Corra Linn','Hungry Horse','Kerr','Albeni Falls','Post Falls',
+             'Grand Coulee','Chelan','Brownlee','Dworshak','Noxon','Round Butte','Revelstoke','Seven Mile',
+             'Brilliant','Thompson Falls','Cabinet Gorge','Box Canyon','Boundary','Waneta','Upper Falls',
+             'Monroe Street','Nine Mile','Long Lake','Little Falls','Chief Joseph','Wells','Rocky Reach',
+             'Rock Island','Wanapum','Priest Rapids','Oxbow','Lower Granite','Lower Monumental','Ice Harbor',
+             'McNary','John Day','Dalles','Bonneville','Hells Canyon','Pelton','Priest Lake','Bonners Ferry']
+    
+    for i in range(0,len(names)):
+        name = names[i]
+        filename = 'PNW_hydro/' + name + '_hydro.csv'
+        gen = generation[:,i,:]
+        df_gen = pd.DataFrame(gen)
+        df_gen.columns = ['fd1','fd2','fd3','fd4','fd5','fd6','fd7']
+        df_gen.to_csv(filename)
+    
+    
+        filename = 'PNW_hydro/' + name + '_spill.csv'
+        sp = spill[:,i,:]
+        df_sp = pd.DataFrame(sp)
+        df_sp.columns = ['fd1','fd2','fd3','fd4','fd5','fd6','fd7']
+        df_sp.to_csv(filename)
+    
+    
+    Unmodeled = np.zeros((sim_days-365,47,f_horizon))
     Unmodeled[:,0,:]=generation[:,9,:]*0.0038 #Main Canal #1
     Unmodeled[:,1,:]=generation[:,23,:]*1.77 #Upriver
     Unmodeled[:,2,:]=generation[:,20,:]*0.017 #Meyers Falls
@@ -3460,7 +3619,7 @@ def simulate(sim_years):
     BPA_own[:,21,:]=generation[:,35,:]*0.190 #Palisades
     
     #Path dams
-    Path_dams = np.zeros((sim_days,26,f_horizon))
+    Path_dams = np.zeros((sim_days-365,26,f_horizon))
     Path_dams[:,0,:] = generation[:,7,:] #Albeni Falls
     Path_dams[:,1,:] = generation[:,42,:] #Bonneville
     Path_dams[:,2,:] = Unmodeled[:,9,:]  #Chandler
@@ -3491,16 +3650,6 @@ def simulate(sim_years):
     
     Total_generation=generation
     Total_generation=np.delete(Total_generation,[0,1,3,4,6,11,15,16,17,18,22,34,43,45,46] ,axis=1)
-    
-    #BPA owned dams
-    BPA_own=BPA_own[122:len(BPA_own)-243,:,:]
-    BPA_own=pd.DataFrame(np.sum(BPA_own,axis=1))
-    
-    #Path 
-    Path_dams=Path_dams[122:len(Path_dams)-243,:,:]
-    
-    ###Total Generation
-    Total_generation=Total_generation[122:len(Total_generation)-243,:,:]
     
     ##Forecast analysis
     #TG = np.sum(Total_generation,axis=1)
@@ -3564,14 +3713,56 @@ def simulate(sim_years):
         else:
             combined = np.dstack([combined,a])
     
-    sim_W=combined
-    sim_W=np.sum(sim_W,axis=1)*24
+    sim_W = combined*24
+    sim_W = np.sum(sim_W,axis=1)
     sim_W = sim_W[365:len(sim_W)-(2*365),:]
     
+    
+    #hydropower
+    #for i in range(0,len(names)):
+    pf = []
+    per = []
+    track = []
+    #    sample = total
+    #num = nums[i]
+    name = 'Willamette'#names[i]
+    sample = sim_W#[:,num,:]
+    for j in range(0,len(sim_W)-7):
+        a = np.sum(sample[j:j+7,0])
+        b = np.sum(sample[j,:])
+        pf = np.append(pf,a)
+        per = np.append(per,b)
+    
+    difference = pf - per
+    for j in range(0,len(pf)):
+        if j < 1:
+            track.append(difference[j])
+        else:
+            track.append(difference[j] + track[j-1])
+       
+    plt.figure()
+    plt.plot(difference)
+    plt.title(name)
+    
+    plt.figure()
+    plt.plot(track)
+    plt.title(name)
+    
+    plt.figure()
+    plt.plot(pf,'r')
+    plt.plot(per,'b')
+    plt.title(name)
+    
+    pct = 100*track[-1]/sum(pf)
+    result = 'The error for ' + name + ' is ' + str(pct) + '%'
+    print(result)
+    
+    
     ###Add Willamette and Willamette missing dams to BPA own file
+    BPA_own = np.sum(BPA_own,axis=1)
     LC=sim_W*0.12 #Lost Creek
     GP=sim_W*0.03 #Green Springs
-    BPA=pd.DataFrame(BPA_own.values + sim_W +LC +GP)
+    BPA=pd.DataFrame(BPA_own + sim_W +LC +GP)
     
     #Add Willamette and Willamette missing to Path generation 
     WILL_total = sim_W*(1+331/411)
@@ -3634,7 +3825,6 @@ def simulate(sim_years):
     
     
     
-    
     Total_sum = pd.DataFrame(np.sum(Total_generation,axis=1))
     Total_sum.columns = ['fd1','fd2','fd3','fd4','fd5','fd6','fd7']
     
@@ -3645,8 +3835,8 @@ def simulate(sim_years):
         df = pd.DataFrame(Path_dams[:,:,fd])
         filename = 'PNW_hydro/FCRPS/Path_dams_forecast_%d.xlsx' % int(fd)
         df.to_excel(filename)
-        
+#    
     return None
-    
-    ##np.savetxt('PNW_hydro/FCRPS/Total_PNW_dams.csv',Total_generation,delimiter=',') #same as dispatch but single dams
-    ##np.savetxt('PNW_hydro/FCRPS/generation.csv',generation,delimiter=',') #all modeled dams and unmodeled sum
+#
+###np.savetxt('PNW_hydro/FCRPS/Total_PNW_dams.csv',Total_generation,delimiter=',') #same as dispatch but single dams
+###np.savetxt('PNW_hydro/FCRPS/generation.csv',generation,delimiter=',') #all modeled dams and unmodeled sum
